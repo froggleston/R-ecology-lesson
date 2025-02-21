@@ -1,0 +1,68 @@
+name: "DOCKER Build and Deploy Site"
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  schedule:
+    - cron: '0 0 * * 2'
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Who triggered this build?'
+        required: true
+        default: 'Maintainer (via GitHub)'
+      reset:
+        description: 'Reset cached markdown files'
+        required: false
+        default: false
+        type: boolean
+jobs:
+  full-build:
+    name: "Build Full Site"
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: write
+      pages: write
+    container:
+      image: carpentries/workbench-docker:${{ vars.WORKBENCH_TAG || 'latest' }}
+      env:
+        WORKBENCH_PROFILE: "ci"
+        GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+        RENV_PATHS_ROOT: ~/.local/share/renv/       
+      volumes:
+        - ${{ github.workspace }}:/home/rstudio/lesson
+      options: --cpus 1
+    steps:
+      - name: "Checkout Lesson"
+        uses: actions/checkout@v4
+
+      - name: Current env
+        run: env | sort
+
+      - name: Debugging Info
+        run: |
+          echo "Current Directory: $(pwd)"
+          ls -lah /home/rstudio/.workbench
+          ls -lah $(pwd)
+          Rscript -e 'sessionInfo()'
+
+      - name: Mark Repository as Safe
+        run: |
+          git config --global --add safe.directory $(pwd)
+
+      - name: Setup Lesson Dependencies
+        run: |
+          Rscript /home/rstudio/.workbench/setup_lesson_deps.R
+
+      - name: Fortify renv Cache
+        run: |
+          Rscript /home/rstudio/.workbench/fortify_renv_cache.R
+
+      - name: Run Container and Build Site
+        run: |
+          Rscript -e 'library(sandpaper)'
+          Rscript -e 'sandpaper::package_cache_trigger(TRUE)'
+          Rscript -e 'sandpaper:::ci_deploy(reset = TRUE)'
