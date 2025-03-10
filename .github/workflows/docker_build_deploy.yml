@@ -75,13 +75,14 @@ jobs:
         run: |
           Rscript /home/rstudio/.workbench/setup_lesson_deps.R
 
-      - name: Download renv Cache
-        if: env.RENV_EXISTS == 'true'
-        uses: actions/download-artifact@v4
+      - name: Restore renv from cache
+        uses: actions/cache@v4
         with:
-          name: renv-cache-${{ env.RENV_VERSION }}
           path: /home/rstudio/lesson/renv
-      
+          key: renv-${{ runner.os }}-${{ env.RENV_VERSION }}
+          restore-keys: |
+            renv-${{ runner.os }}-            
+            
       - name: Restore renv Dependencies
         if: env.RENV_EXISTS == 'true'
         run: Rscript -e 'renv::restore()'
