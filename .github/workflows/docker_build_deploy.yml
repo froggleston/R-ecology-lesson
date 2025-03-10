@@ -86,14 +86,15 @@ jobs:
       - name: Restore renv Dependencies
         if: env.RENV_EXISTS == 'true'
         run: |
-          Rscript -e 'lsn_path <- fs::path(Sys.getenv("GITHUB_WORKSPACE", getwd()))'
-          Rscript -e 'lsn_path'
-          Rscript -e 'renv_lib  <- renv::paths$library(project = lsn_path)'
-          Rscript -e 'renv_lock <- renv::paths$lockfile(project = lsn_path)'
-          Rscript -e 'renv::restore(project = lsn_path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)'
+          lsn_path <- fs::path(Sys.getenv("GITHUB_WORKSPACE", getwd()))
+          renv_lib  <- renv::paths$library(project = lsn_path)
+          renv_lock <- renv::paths$lockfile(project = lsn_path)
+          renv::restore(project = lsn_path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)
+        shell: Rscript {0}
 
       - name: Run Container and Build Site
         run: |
-          Rscript -e 'library(sandpaper)'
-          Rscript -e 'sandpaper::package_cache_trigger(TRUE)'
-          Rscript -e 'sandpaper:::ci_deploy(reset = TRUE)'
+          library(sandpaper)
+          sandpaper::package_cache_trigger(TRUE)
+          sandpaper:::ci_deploy(reset = TRUE)
+        shell: Rscript {0}
