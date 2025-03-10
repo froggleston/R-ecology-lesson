@@ -52,7 +52,7 @@ jobs:
         if: env.RENV_EXISTS == 'true'
         run: |
           if [ -z "$CACHE_VERSION" ]; then
-            echo "RENV_VERSION=${{ github.sha }}" >> $GITHUB_ENV
+            echo "RENV_VERSION=${{ hashFiles('**/renv.lock') }}" >> $GITHUB_ENV
           else
             echo "RENV_VERSION=$CACHE_VERSION" >> $GITHUB_ENV
           fi
@@ -84,23 +84,20 @@ jobs:
           restore-keys: |
             renv-${{ runner.os }}-
 
-      - name: Debugging renv Info
-        run: |
-          ls -lah /home/rstudio/lesson
-          ls -lah /home/rstudio/lesson/renv
-          ls -lah /home/rstudio/lesson/renv/profiles
-          ls -lah /home/rstudio/lesson/renv/profiles/lesson-requirements/
+      # - name: Debugging renv Info
+      #   run: |
+      #     ls -lah /home/rstudio/lesson
+      #     ls -lah /home/rstudio/lesson/renv
+      #     ls -lah /home/rstudio/lesson/renv/profiles
+      #     ls -lah /home/rstudio/lesson/renv/profiles/lesson-requirements/
             
       - name: Restore renv Dependencies
         if: env.RENV_EXISTS == 'true'
         run: |
           lsn_path <- fs::path("/home/rstudio/lesson")
           renv::load(project = lsn_path)
-          
           renv_lib  <- renv::paths$library(project = lsn_path)
-          renv_lib
           renv_lock <- renv::paths$lockfile(project = lsn_path)
-          renv_lock
           renv::restore(project = lsn_path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)
         shell: Rscript {0}
 
