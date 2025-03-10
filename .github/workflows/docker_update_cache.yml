@@ -1,0 +1,71 @@
+name: "DOCKER Update renv Cache"
+
+on:
+  schedule:
+    - cron: '0 0 * * 2'
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Who triggered this build?'
+        required: true
+        default: 'Maintainer (via GitHub)'
+jobs:
+  update-renv-cache:
+    name: "Update renv Cache"
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: write
+      pages: write
+    container:
+      image: carpentries/workbench-docker:${{ vars.WORKBENCH_TAG || 'latest' }}
+      env:
+        WORKBENCH_PROFILE: "ci"
+        GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+        RENV_PATHS_ROOT: /home/rstudio/lesson/renv
+      volumes:
+        - ${{ github.workspace }}:/home/rstudio/lesson
+      options: --cpus 1
+    steps:
+      - name: "Checkout Lesson"
+        uses: actions/checkout@v4
+
+      - name: Current env
+        run: env | sort
+
+      - name: Debugging Info
+        run: |
+          echo "Current Directory: $(pwd)"
+          ls -lah /home/rstudio/.workbench
+          ls -lah $(pwd)
+          Rscript -e 'sessionInfo()'
+
+      - name: Mark Repository as Safe
+        run: |
+          git config --global --add safe.directory $(pwd)
+
+      - name: Check if renv Exists
+        id: check-renv
+        run: |
+          if [ -d "/home/rstudio/lesson/renv" ]; then
+            echo "RENV_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "RENV_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Setup Lesson Dependencies
+        if: env.RENV_EXISTS == 'true'
+        run: |
+          Rscript /home/rstudio/.workbench/setup_lesson_deps.R
+
+      - name: Fortify renv Cache
+        if: env.RENV_EXISTS == 'true'
+        run: |
+          Rscript /home/rstudio/.workbench/fortify_renv_cache.R
+
+      - name: Upload Updated renv Cache
+        if: env.RENV_EXISTS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: renv-cache-${{ github.sha }}
+          path: /home/rstudio/lesson/renv
