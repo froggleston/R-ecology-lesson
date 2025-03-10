@@ -81,11 +81,14 @@ jobs:
           path: /home/rstudio/lesson/renv
           key: renv-${{ runner.os }}-${{ env.RENV_VERSION }}
           restore-keys: |
-            renv-${{ runner.os }}-            
+            renv-${{ runner.os }}-
             
       - name: Restore renv Dependencies
         if: env.RENV_EXISTS == 'true'
-        run: Rscript -e 'renv::restore()'
+        run: |
+          Rscript -e 'renv_lib  <- renv::paths$library(project = $(pwd))'
+          Rscript -e 'renv_lock <- renv::paths$lockfile(project = $(pwd))'
+          Rscript -e 'renv::restore(project = $(pwd), library = renv_lib, lockfile = renv_lock, prompt = FALSE)'
 
       - name: Run Container and Build Site
         run: |
