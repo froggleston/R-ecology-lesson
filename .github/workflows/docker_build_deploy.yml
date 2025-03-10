@@ -36,8 +36,8 @@ jobs:
         - ${{ github.workspace }}:/home/rstudio/lesson
       options: --cpus 1
     steps:
-      - name: "Checkout Lesson"
-        uses: actions/checkout@v4
+      # - name: "Checkout Lesson"
+      #   uses: actions/checkout@v4
 
       - name: Check if renv Exists
         id: check-renv
@@ -62,6 +62,7 @@ jobs:
 
       - name: Debugging Info
         run: |
+          cd /home/rstudio/lesson
           echo "Current Directory: $(pwd)"
           ls -lah /home/rstudio/.workbench
           ls -lah $(pwd)
@@ -85,6 +86,7 @@ jobs:
 
       - name: Debugging renv Info
         run: |
+          ls -lah /home/rstudio/lesson
           ls -lah /home/rstudio/lesson/renv
           ls -lah /home/rstudio/lesson/renv/profiles
           ls -lah /home/rstudio/lesson/renv/profiles/lesson-requirements/
@@ -92,7 +94,7 @@ jobs:
       - name: Restore renv Dependencies
         if: env.RENV_EXISTS == 'true'
         run: |
-          lsn_path <- fs::path(Sys.getenv("GITHUB_WORKSPACE", getwd()))
+          lsn_path <- fs::path("/home/rstudio/lesson")
           lsn_path
           renv_lib  <- renv::paths$library(project = lsn_path)
           renv_lib
