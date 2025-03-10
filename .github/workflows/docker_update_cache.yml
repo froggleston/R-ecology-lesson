@@ -63,9 +63,11 @@ jobs:
         run: |
           Rscript /home/rstudio/.workbench/fortify_renv_cache.R
 
-      - name: Upload Updated renv Cache
+      - name: Cache renv Directory
         if: env.RENV_EXISTS == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/cache@v4
         with:
-          name: renv-cache-${{ github.sha }}
           path: /home/rstudio/lesson/renv
+          key: renv-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            renv-${{ runner.os }}-
