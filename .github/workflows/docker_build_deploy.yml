@@ -36,8 +36,8 @@ jobs:
         - ${{ github.workspace }}:/home/rstudio/lesson
       options: --cpus 1
     steps:
-      # - name: "Checkout Lesson"
-      #   uses: actions/checkout@v4
+      - name: "Checkout Lesson"
+        uses: actions/checkout@v4
 
       - name: Check if renv Exists
         id: check-renv
