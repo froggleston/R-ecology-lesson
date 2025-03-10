@@ -95,7 +95,8 @@ jobs:
         if: env.RENV_EXISTS == 'true'
         run: |
           lsn_path <- fs::path("/home/rstudio/lesson")
-          lsn_path
+          renv::load(project = lsn_path)
+          
           renv_lib  <- renv::paths$library(project = lsn_path)
           renv_lib
           renv_lock <- renv::paths$lockfile(project = lsn_path)
