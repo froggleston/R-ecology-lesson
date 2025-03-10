@@ -31,13 +31,31 @@ jobs:
       env:
         WORKBENCH_PROFILE: "ci"
         GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-        RENV_PATHS_ROOT: ~/.local/share/renv/       
+        RENV_PATHS_ROOT: /home/rstudio/lesson/renv
       volumes:
         - ${{ github.workspace }}:/home/rstudio/lesson
       options: --cpus 1
     steps:
       - name: "Checkout Lesson"
         uses: actions/checkout@v4
+
+      - name: Check if renv Exists
+        id: check-renv
+        run: |
+          if [ -d "/home/rstudio/lesson/renv" ]; then
+            echo "RENV_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "RENV_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Set renv Cache Version
+        if: env.RENV_EXISTS == 'true'
+        run: |
+          if [ -z "$CACHE_VERSION" ]; then
+            echo "RENV_VERSION=${{ github.sha }}" >> $GITHUB_ENV
+          else
+            echo "RENV_VERSION=$CACHE_VERSION" >> $GITHUB_ENV
+          fi
 
       - name: Current env
         run: env | sort
@@ -57,9 +75,16 @@ jobs:
         run: |
           Rscript /home/rstudio/.workbench/setup_lesson_deps.R
 
-      - name: Fortify renv Cache
-        run: |
-          Rscript /home/rstudio/.workbench/fortify_renv_cache.R
+      - name: Download renv Cache
+        if: env.RENV_EXISTS == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: renv-cache-${{ env.RENV_VERSION }}
+          path: /home/rstudio/lesson/renv
+      
+      - name: Restore renv Dependencies
+        if: env.RENV_EXISTS == 'true'
+        run: Rscript -e 'renv::restore()'
 
       - name: Run Container and Build Site
         run: |
