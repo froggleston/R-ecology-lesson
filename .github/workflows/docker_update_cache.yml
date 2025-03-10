@@ -68,6 +68,6 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/rstudio/lesson/renv
-          key: renv-${{ runner.os }}-${{ github.sha }}
+          key: renv-${{ runner.os }}-${{ hashFiles('**/renv.lock') }}
           restore-keys: |
             renv-${{ runner.os }}-
