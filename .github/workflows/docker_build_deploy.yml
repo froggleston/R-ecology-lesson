@@ -86,7 +86,7 @@ jobs:
       - name: Restore renv Dependencies
         if: env.RENV_EXISTS == 'true'
         run: |
-          Rscript -e 'path <- $(pwd)'
+          Rscript -e 'path <- Sys.getenv("GITHUB_WORKSPACE")'
           Rscript -e 'renv_lib  <- renv::paths$library(project = path)'
           Rscript -e 'renv_lock <- renv::paths$lockfile(project = path)'
           Rscript -e 'renv::restore(project = path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)'
