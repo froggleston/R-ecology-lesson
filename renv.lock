@@ -3432,13 +3432,9 @@
       "Maintainer": "Marek Gagolewski <marek@gagolewski.com>",
       "RoxygenNote": "7.2.3",
       "Encoding": "UTF-8",
-      "Config/pak/sysreqs": "libicu-dev",
-      "Repository": "https://carpentries.r-universe.dev",
       "NeedsCompilation": "yes",
-      "RemoteType": "repository",
-      "RemoteUrl": "https://github.com/gagolews/stringi",
-      "RemoteRef": "v1.8.4",
-      "RemoteSha": "f5a91d1869ec4c757d37519f710ec1fa4f74a1c8"
+      "License_is_FOSS": "yes",
+      "Repository": "RSPM"
     },
     "stringr": {
       "Package": "stringr",
