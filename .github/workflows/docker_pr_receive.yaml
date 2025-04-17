@@ -65,7 +65,7 @@ jobs:
         MD: /home/rstudio/lesson/site/built
       volumes:
         - ${{ github.workspace }}:/home/rstudio/lesson
-      options: --cpus 1
+      options: --cpus 2
     steps:
       - name: "Check Out Main Branch"
         uses: actions/checkout@v4

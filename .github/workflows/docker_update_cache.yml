@@ -37,7 +37,7 @@ jobs:
         RENV_PATHS_ROOT: /home/rstudio/lesson/renv
       volumes:
         - ${{ github.workspace }}:/home/rstudio/lesson
-      options: --cpus 1
+      options: --cpus 2
     steps:
       - name: "Checkout Lesson"
         uses: actions/checkout@v4
@@ -80,6 +80,6 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/rstudio/lesson/renv
-          key: renv-${{ runner.os }}-${{ hashFiles('**/renv.lock') }}
-          restore-keys: |
-            renv-${{ runner.os }}-
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys:
+            ${{ runner.os }}-${{ inputs.cache-version }}-renv-

@@ -84,13 +84,6 @@ jobs:
           restore-keys: |
             renv-${{ runner.os }}-
 
-      # - name: Debugging renv Info
-      #   run: |
-      #     ls -lah /home/rstudio/lesson
-      #     ls -lah /home/rstudio/lesson/renv
-      #     ls -lah /home/rstudio/lesson/renv/profiles
-      #     ls -lah /home/rstudio/lesson/renv/profiles/lesson-requirements/
-            
       - name: Restore renv Dependencies
         if: env.RENV_EXISTS == 'true'
         run: |
