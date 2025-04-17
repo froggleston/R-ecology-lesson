@@ -16,6 +16,7 @@ jobs:
   update-renv-cache:
     name: "Update renv Cache"
     if: |
+      github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
       (
         github.event.pull_request.merged == true &&
