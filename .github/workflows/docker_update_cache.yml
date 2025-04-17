@@ -9,9 +9,21 @@ on:
         description: 'Who triggered this build?'
         required: true
         default: 'Maintainer (via GitHub)'
+  pull_request:
+    types:
+      - closed
 jobs:
   update-renv-cache:
     name: "Update renv Cache"
+    if: |
+      github.event_name == 'schedule' ||
+      (
+        github.event.pull_request.merged == true &&
+        contains(
+          join(github.event.pull_request.labels.*.name, ','),
+          'type: package cache'
+        )
+      )
     runs-on: ubuntu-latest
     permissions:
       checks: write
