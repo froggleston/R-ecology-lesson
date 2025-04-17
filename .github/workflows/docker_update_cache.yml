@@ -1,4 +1,4 @@
-name: "DOCKER Update renv Cache"
+name: "DOCKER Apply Package Cache"
 
 on:
   workflow_dispatch:
