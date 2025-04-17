@@ -1,8 +1,6 @@
 name: "DOCKER Update renv Cache"
 
 on:
-  schedule:
-    - cron: '0 0 * * 2'
   workflow_dispatch:
     inputs:
       name:
@@ -17,7 +15,6 @@ jobs:
     name: "Update renv Cache"
     if: |
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule' ||
       (
         github.event.pull_request.merged == true &&
         contains(
