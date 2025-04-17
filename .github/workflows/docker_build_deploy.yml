@@ -13,6 +13,10 @@ on:
         description: 'Who triggered this build?'
         required: true
         default: 'Maintainer (via GitHub)'
+      CACHE_VERSION:
+        description: 'Optional renv cache version override'
+        required: false
+        default: ''
       reset:
         description: 'Reset cached markdown files'
         required: false
@@ -51,10 +55,11 @@ jobs:
       - name: Set renv Cache Version
         if: env.RENV_EXISTS == 'true'
         run: |
-          if [ -z "$CACHE_VERSION" ]; then
+          CACHE_VERSION_INPUT="${{ github.event.inputs.CACHE_VERSION }}"
+          if [ -z "$CACHE_VERSION_INPUT" ]; then
             echo "RENV_VERSION=${{ hashFiles('**/renv.lock') }}" >> $GITHUB_ENV
           else
-            echo "RENV_VERSION=$CACHE_VERSION" >> $GITHUB_ENV
+            echo "RENV_VERSION=$CACHE_VERSION_INPUT" >> $GITHUB_ENV
           fi
 
       - name: Current env
@@ -78,11 +83,12 @@ jobs:
 
       - name: Restore renv from cache
         uses: actions/cache@v4
+        if: env.RENV_EXISTS == 'true'
         with:
           path: /home/rstudio/lesson/renv
-          key: renv-${{ runner.os }}-${{ env.RENV_VERSION }}
-          restore-keys: |
-            renv-${{ runner.os }}-
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ env.RENV_VERSION }}
+          restore-keys:
+            ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
       - name: Restore renv Dependencies
         if: env.RENV_EXISTS == 'true'
