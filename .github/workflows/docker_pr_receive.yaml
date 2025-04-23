@@ -60,9 +60,9 @@ jobs:
         WORKBENCH_PROFILE: "ci"
         GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         RENV_PATHS_ROOT: /home/rstudio/lesson/renv
-        CHIVE: /home/rstudio/lesson/site/chive
-        PR: /home/rstudio/lesson/site/pr
-        MD: /home/rstudio/lesson/site/built
+        CHIVE: ${{ github.workspace }}/site/chive
+        PR: ${{ github.workspace }}/site/pr
+        MD: ${{ github.workspace }}/site/built
       volumes:
         - ${{ github.workspace }}:/home/rstudio/lesson
       options: --cpus 2
