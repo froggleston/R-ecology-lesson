@@ -70,12 +70,6 @@ jobs:
       - name: "Check Out Main Branch"
         uses: actions/checkout@v4
 
-      - name: "Check Out Staging Branch"
-        uses: actions/checkout@v4
-        with:
-          ref: md-outputs
-          path: ${{ env.MD }}
-
       - name: Check if renv Exists
         id: check-renv
         run: |
@@ -106,6 +100,12 @@ jobs:
         if: env.RENV_EXISTS == 'true'
         run: |
           Rscript /home/rstudio/.workbench/fortify_renv_cache.R
+
+      - name: "Check Out Staging Branch"
+        uses: actions/checkout@v4
+        with:
+          ref: md-outputs
+          path: ${{ env.MD }}
 
       - name: "Validate and Build Markdown"
         id: build-site
