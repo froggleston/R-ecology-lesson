@@ -111,7 +111,7 @@ jobs:
         if: env.RENV_EXISTS == 'true'
         with:
           path: /home/rstudio/lesson/renv
-          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-$RENV_VERSION
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ needs.prepare.outputs.renv-cache-hashsum }}
           restore-keys:
             ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
