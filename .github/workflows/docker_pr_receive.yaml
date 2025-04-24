@@ -51,9 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.test-pr.outputs.is_valid == 'true' }}
     env:
-      CHIVE: ${{ github.workspace }}/site/chive
-      PR: ${{ github.workspace }}/site/pr
-      MD: ${{ github.workspace }}/site/built
+      GHWMD: ${{ github.workspace }}/site/built
     permissions:
       checks: write
       contents: write
@@ -64,6 +62,9 @@ jobs:
         WORKBENCH_PROFILE: "ci"
         GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         RENV_PATHS_ROOT: /home/rstudio/lesson/renv
+        CHIVE: /home/rstudio/lesson/site/chive
+        PR: /home/rstudio/lesson/site/pr
+        MD: /home/rstudio/lesson/site/built
       volumes:
         - ${{ github.workspace }}:/home/rstudio/lesson
       options: --cpus 2
@@ -75,7 +76,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: md-outputs
-          path: ${{ env.MD }}
+          path: ${{ env.GHWMD }}
 
       - name: Check if renv Exists
         id: check-renv
