@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.test-pr.outputs.is_valid == 'true' }}
     env:
+      CHIVE: ${{ github.workspace }}/site/chive
+      PR: ${{ github.workspace }}/site/pr
       GHWMD: ${{ github.workspace }}/site/built
     permissions:
       checks: write
@@ -62,9 +64,6 @@ jobs:
         WORKBENCH_PROFILE: "ci"
         GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         RENV_PATHS_ROOT: /home/rstudio/lesson/renv
-        CHIVE: /home/rstudio/lesson/site/chive
-        PR: /home/rstudio/lesson/site/pr
-        MD: /home/rstudio/lesson/site/built
       volumes:
         - ${{ github.workspace }}:/home/rstudio/lesson
       options: --cpus 2
@@ -123,9 +122,9 @@ jobs:
           sandpaper:::ci_bundle_pr_artifacts(
             repo         = '${{ github.repository }}',
             pr_number    = '${{ github.event.number }}',
-            path_md      = '${{ env.MD }}',
-            path_pr      = '${{ env.PR }}',
-            path_archive = '${{ env.CHIVE }}',
+            path_md      = '/home/rstudio/lesson/site/built',
+            path_pr      = '/home/rstudio/lesson/site/pr',
+            path_archive = '/home/rstudio/lesson/site/chive',
             branch       = 'md-outputs'
           )
         shell: Rscript {0}
@@ -148,7 +147,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: built
-          path: ${{ env.MD }}
+          path: ${{ env.GHWMD }}
           retention-days: 1
 
       - name: "Teardown"
