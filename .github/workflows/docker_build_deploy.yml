@@ -57,7 +57,7 @@ jobs:
         run: |
           CACHE_VERSION_INPUT="${{ github.event.inputs.CACHE_VERSION }}"
           if [ -z "$CACHE_VERSION_INPUT" ]; then
-            echo "RENV_VERSION=${{ hashFiles('${{ github.workspace }}/renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_ENV
+            echo "RENV_VERSION=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_ENV
           else
             echo "RENV_VERSION=$CACHE_VERSION_INPUT" >> $GITHUB_ENV
           fi
