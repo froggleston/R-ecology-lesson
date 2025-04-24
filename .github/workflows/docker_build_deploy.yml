@@ -27,18 +27,29 @@ jobs:
     name: "Grab renv.lock hash"
     runs-on: ubuntu-latest
     outputs:
-      renv-version: ${{ steps.set-hash.outputs.renv-version }}
+      renv-cache-hashsum: ${{ steps.set-hash.outputs.renv-cache-hashsum }}
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Check if renv Exists
+        id: prep-check-renv
+        run: |
+          if [ -d "$GITHUB_WORKSPACE/renv" ]; then
+            echo "RENV_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "RENV_EXISTS=false" >> $GITHUB_ENV
+          fi
+
       - name: Calculate renv hash
         id: set-hash
+        if: env.RENV_EXISTS == 'true'
         run: |
           CACHE_VERSION_INPUT="${{ github.event.inputs.CACHE_VERSION }}"
           if [ -z "$CACHE_VERSION_INPUT" ]; then
-            echo "renv-version=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_OUTPUT
+            echo "renv-cache-hashsum=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_OUTPUT
           else
-            echo "renv-version=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT
-          fi        
+            echo "renv-cache-hashsum=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT
+          fi
 
   full-build:
     name: "Build Full Site"
@@ -54,7 +65,7 @@ jobs:
         WORKBENCH_PROFILE: "ci"
         GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         RENV_PATHS_ROOT: /home/rstudio/lesson/renv
-        RENV_VERSION: ${{ needs.prepare.outputs.renv-version }}
+        RENV_VERSION: ${{ needs.prepare.outputs.renv-cache-hashsum }}
       volumes:
         - ${{ github.workspace }}:/home/rstudio/lesson
       options: --cpus 1
@@ -72,17 +83,8 @@ jobs:
           fi
 
       - name: "Grabbed renv.lock hash"
+        if: env.RENV_EXISTS == 'true'
         run: echo "RENV_VERSION is $RENV_VERSION"
-
-      # - name: Set renv Cache Version
-      #   if: env.RENV_EXISTS == 'true'
-      #   run: |
-      #     CACHE_VERSION_INPUT="${{ github.event.inputs.CACHE_VERSION }}"
-      #     if [ -z "$CACHE_VERSION_INPUT" ]; then
-      #       echo "RENV_VERSION=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_ENV
-      #     else
-      #       echo "RENV_VERSION=$CACHE_VERSION_INPUT" >> $GITHUB_ENV
-      #     fi
 
       - name: Current env
         run: env | sort
@@ -109,7 +111,7 @@ jobs:
         if: env.RENV_EXISTS == 'true'
         with:
           path: /home/rstudio/lesson/renv
-          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ env.RENV_VERSION }}
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-$RENV_VERSION
           restore-keys:
             ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
