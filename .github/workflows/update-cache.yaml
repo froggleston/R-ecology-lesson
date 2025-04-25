@@ -50,21 +50,6 @@ jobs:
             echo "exists=true" >> $GITHUB_OUTPUT
           fi
 
-#   check_token:
-#     name: "Check SANDPAPER_WORKFLOW token"
-#     runs-on: ubuntu-22.04
-#     needs: check_renv
-#     if: ${{ needs.check_renv.outputs.renv-needed == 'true' }}
-#     outputs:
-#       workflow: ${{ steps.validate.outputs.wf }}
-#       repo: ${{ steps.validate.outputs.repo }}
-#     steps:
-#       - name: "validate token"
-#         id: validate
-#         uses: carpentries/actions/check-valid-credentials@main
-#         with:
-#           token: ${{ secrets.SANDPAPER_WORKFLOW }}
-
   update_cache:
     name: "Update Package Cache"
     runs-on: ubuntu-22.04
@@ -127,8 +112,14 @@ jobs:
           labels: "type: package cache"
           draft: false
 
+      - name: Skip PR creation
+        if: ${{ steps.update.outputs.n == 0 }}
+        run: |
+          echo "No updates needed, skipping PR creation"
+
       # thanks @Bisaloo! - https://github.com/carpentries/sandpaper/issues/646#issuecomment-2829578435
       - name: Trigger checks
+        if: ${{ steps.cpr.outputs.pull-request-number != '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
