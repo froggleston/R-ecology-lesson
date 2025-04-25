@@ -123,3 +123,10 @@ jobs:
             [1]: https://github.com/carpentries/create-pull-request/tree/main
           labels: "type: package cache"
           draft: false
+
+      # thanks @Bisaloo! - https://github.com/carpentries/sandpaper/issues/646#issuecomment-2829578435
+      - name: Trigger checks
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run docker_pr_receive.yaml --field pr_number=${{ steps.cpr.outputs.pull-request-number }}
