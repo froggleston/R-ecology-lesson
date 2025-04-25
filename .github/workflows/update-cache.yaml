@@ -67,7 +67,7 @@ jobs:
 
   update_cache:
     name: "Update Package Cache"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: check-renv
     if: ${{ needs.check-renv.outputs.renv-needed == 'true' }}
     env:
