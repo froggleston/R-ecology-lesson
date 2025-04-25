@@ -69,12 +69,15 @@ jobs:
     name: "Update Package Cache"
     runs-on: ubuntu-22.04
     needs: check-renv
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
     if: ${{ needs.check-renv.outputs.renv-needed == 'true' }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       RENV_PATHS_ROOT: ~/.local/share/renv/
     steps:
-
       - name: "Checkout Lesson"
         uses: actions/checkout@v4
 
