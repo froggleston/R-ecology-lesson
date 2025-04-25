@@ -14,7 +14,7 @@ on:
 jobs:
   preflight:
     name: "Preflight Check"
-    runs-on: ubuntu--latest
+    runs-on: ubuntu-latest
     outputs:
       ok: ${{ steps.check.outputs.ok }}
     steps:
