@@ -1,4 +1,4 @@
-name: "03 Maintain: Update Package Cache"
+name: "02 Maintain: Check for Updated Packages"
 
 on:
   workflow_dispatch:
@@ -7,9 +7,28 @@ on:
         description: 'Who triggered this build (enter github username to tag yourself)?'
         required: true
         default: 'monthly run'
+      skip-restore:
+        description: 'Force lockfile update?'
+        required: false
+        default: false
+        type: boolean
+      update-packages:
+        description: 'Install any package updates?'
+        required: false
+        default: true
+        type: boolean
+      generate-cache:
+        description: 'Generate separate package cache?'
+        required: false
+        default: false
+        type: boolean
   schedule:
     # Run every tuesday
     - cron: '0 0 * * 2'
+
+env:
+  LOCKFILE_CACHE_GEN: ${{ github.event.inputs.generate-cache || 'false' }}
+  SKIP_RENV_RESTORE: ${{ github.event.inputs.skip-restore || 'false' }}
 
 jobs:
   preflight:
@@ -58,6 +77,7 @@ jobs:
       contents: write
       pull-requests: write
       actions: write
+      issues: write
     if: ${{ needs.check-renv.outputs.renv-needed == 'true' }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -74,8 +94,11 @@ jobs:
 
       - name: "Update {renv} deps and determine if a PR is needed"
         id: update
-        uses: carpentries/actions/update-lockfile@main
+        uses: froggleston/actions/update-lockfile@main
         with:
+          update: ${{ github.event.inputs.update-packages }}
+          skip-restore: ${{ env.SKIP_RENV_RESTORE }}
+          generate-cache: ${{ env.LOCKFILE_CACHE_GEN }}
           cache-version: ${{ secrets.CACHE_VERSION }}
 
       - name: Create Pull Request
