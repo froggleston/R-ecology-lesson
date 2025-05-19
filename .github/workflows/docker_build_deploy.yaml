@@ -121,6 +121,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check-renv, prepare-renv, prepare-wb-package-override]
     if: always()
+    env:
+        VARNISH_VER: ${{ needs.prepare-wb-package-override.outputs.varnish-version }}
+        SANDPAPER_VER: ${{ needs.prepare-wb-package-override.outputs.sandpaper-version }}
+        PEGBOARD_VER: ${{ needs.prepare-wb-package-override.outputs.pegboard-version }}
     permissions:
       checks: write
       contents: write
