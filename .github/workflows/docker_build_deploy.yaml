@@ -106,6 +106,9 @@ jobs:
         GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         RENV_PATHS_ROOT: /home/rstudio/lesson/renv
         RENV_VERSION: ${{ needs.prepare.outputs.renv-cache-hashsum }}
+        VARNISH_VER: ${{ inputs.varnish-version }}
+        SANDPAPER_VER: ${{ inputs.sandpaper-version }}
+        PEGBOARD_VER: ${{ inputs.pegboard-version }}
       volumes:
         - ${{ github.workspace }}:/home/rstudio/lesson
       options: --cpus 1
@@ -171,12 +174,12 @@ jobs:
           echo "❌ renv cache required but none available. Please run the "02 Maintain: Check for Updated Packages" then the "03 Maintain: Apply Package Cache" workflows."
           exit 1
       
-      - name: Pin any Workbench packages
-        if: inputs.varnish-version != 'latest' || inputs.sandpaper-version != 'latest' || inputs.pegboard-version != 'latest'
+      - name: Override any Workbench packages
+        if: env.VARNISH_VER != 'latest' || env.SANDPAPER_VER != 'latest' || env.PEGBOARD_VER != 'latest'
         run: |
-          varnish_version   <- '${{ inputs.varnish-version }}'
-          sandpaper_version <- '${{ inputs.sandpaper-version }}'
-          pegboard_version  <- '${{ inputs.pegboard-version }}'
+          varnish_version   <- '${{ env.VARNISH_VER }}'
+          sandpaper_version <- '${{ env.SANDPAPER_VER }}'
+          pegboard_version  <- '${{ env.PEGBOARD_VER }}'
           cfg_file <- '/home/rstudio/lesson/config.yaml'
           
           library("remotes")
