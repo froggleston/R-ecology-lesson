@@ -91,12 +91,12 @@ jobs:
           fi
   
   prepare-wb-package-override:
-    name: "Override any Workbench packages?"
-    runs-on: ubuntu-22.04
+    name: "Any Workbench package version inputs?"
+    runs-on: ubuntu-latest
     outputs:
-      varnish-version: ${{ steps.input-wb-vers.outputs.varnish-version-override || steps.config-wb-vers.outputs.varnish-version-override }}
-      sandpaper-version: ${{ steps.input-wb-vers.outputs.sandpaper-version-override || steps.config-wb-vers.outputs.sandpaper-version-override }}
-      pegboard-version: ${{ steps.input-wb-vers.outputs.pegboard-version-override || steps.config-wb-vers.outputs.pegboard-version-override }}
+      varnish-version: ${{ steps.input-wb-vers.outputs.varnish-version-override }}
+      sandpaper-version: ${{ steps.input-wb-vers.outputs.sandpaper-version-override }}
+      pegboard-version: ${{ steps.input-wb-vers.outputs.pegboard-version-override }}
     steps:
       - uses: actions/checkout@v4
 
@@ -106,49 +106,9 @@ jobs:
           VARNISH_VERSION_INPUT="${{ github.event.inputs.varnish-version || vars.varnish-version }}"
           SANDPAPER_VERSION_INPUT="${{ github.event.inputs.sandpaper-version || vars.sandpaper-version  }}"
           PEGBOARD_VERSION_INPUT="${{ github.event.inputs.pegboard-version || vars.pegboard-version  }}"
-          
           echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
           echo "sandpaper-version-override=$SANDPAPER_VERSION_INPUT" >> $GITHUB_OUTPUT
           echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
-
-      - name: "Get config Workbench package versions"
-        id: config-wb-vers
-        run: |
-          cfg_file <- 'config.yaml'
-          
-          library("remotes")
-          cfg <- if (file.exists(cfg_file)) readLines(cfg_file) else character(0)
-          get_version <- function(x, key = "varnish") {
-            res <- x[grepl(paste0("^", key, "\\s?:"), x)]
-            if (length(res)) {
-              res <- trimws(strsplit(res, ":")[[1]][2])
-              # trim quotes
-              res <- gsub("[\"']", "", res)
-              if (grepl("^[0-9]", res)) {
-                res <- paste0("carpentries/", key, "@", res)
-              }
-            } else {
-              res <- "latest"
-            }
-            res
-          }
-          
-          VARNISH_VERSION_CFG <- get_version(cfg, key = "varnish")
-          if (!is.null(VARNISH_VERSION_CFG) && !is.na(VARNISH_VERSION_CFG) && nzchar(VARNISH_VERSION_CFG)) {
-            cat(paste0("varnish-version-override=", VARNISH_VERSION_CFG, "\n"), file = Sys.getenv("GITHUB_OUTPUT"))
-          }
-
-          SANDPAPER_VERSION_CFG <- get_version(cfg, key = "sandpaper")
-          if (!is.null(SANDPAPER_VERSION_CFG) && !is.na(SANDPAPER_VERSION_CFG) && nzchar(SANDPAPER_VERSION_CFG)) {
-            cat(paste0("sandpaper-version-override=", SANDPAPER_VERSION_CFG, "\n"), file = Sys.getenv("GITHUB_OUTPUT"))
-          }
-
-          PEGBOARD_VERSION_CFG <- get_version(cfg, key = "pegboard")
-          if (!is.null(PEGBOARD_VERSION_CFG) && !is.na(PEGBOARD_VERSION_CFG) && nzchar(PEGBOARD_VERSION_CFG)) {
-            cat(paste0("pegboard-version-override=", PEGBOARD_VERSION_CFG, "\n"), file = Sys.getenv("GITHUB_OUTPUT"))
-          }
-
-        shell: Rscript {0}
 
   full-build:
     name: "Build Full Site"
@@ -241,6 +201,28 @@ jobs:
           sandpaper_version <- '${{ env.SANDPAPER_VER }}'
           pegboard_version  <- '${{ env.PEGBOARD_VER }}'
 
+          cfg_file <- '/home/rstudio/lesson/config.yaml'
+          
+          library("remotes")
+          cfg <- if (file.exists(cfg_file)) readLines(cfg_file) else character(0)
+          get_version <- function(x, key = "varnish") {
+            res <- x[grepl(paste0("^", key, "\\s?:"), x)]
+            if (length(res)) {
+              res <- trimws(strsplit(res, ":")[[1]][2])
+              # trim quotes
+              res <- gsub("[\"']", "", res)
+              if (grepl("^[0-9]", res)) {
+                res <- paste0("carpentries/", key, "@", res)
+              }
+            } else {
+              res <- "latest"
+            }
+            res
+          }
+
+          varnish_version <- get_version(cfg, key = "varnish")
+          sandpaper_version <- get_version(cfg, key = "sandpaper")
+          pegboard_version <- get_version(cfg, key = "pegboard")
           if (varnish_version != "latest") {
             cat("::group::Installing", varnish_version, "\n")
             remotes::install_github(varnish_version)
@@ -257,7 +239,7 @@ jobs:
             cat("::endgroup::\n")
           }
         shell: Rscript {0}
-      
+
       - name: Run Container and Build Site
         run: |
           library(sandpaper)
