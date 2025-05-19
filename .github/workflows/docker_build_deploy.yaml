@@ -104,11 +104,17 @@ jobs:
         id: input-wb-vers
         run: |
           VARNISH_VERSION_INPUT="${{ github.event.inputs.varnish-version || vars.varnish-version }}"
+          if [ -z "$VARNISH_VERSION_INPUT" ]; then
+            echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
+          fi
           SANDPAPER_VERSION_INPUT="${{ github.event.inputs.sandpaper-version || vars.sandpaper-version  }}"
+          if [ -z "$SANDPAPER_VERSION_INPUT" ]; then
+            echo "sandpaper-version-override=$SANDPAPER_VERSION_INPUT" >> $GITHUB_OUTPUT
+          fi
           PEGBOARD_VERSION_INPUT="${{ github.event.inputs.pegboard-version || vars.pegboard-version  }}"
-          echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
-          echo "sandpaper-version-override=$SANDPAPER_VERSION_INPUT" >> $GITHUB_OUTPUT
-          echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
+          if [ -z "$PEGBOARD_VERSION_INPUT" ]; then
+            echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
+          fi
 
   full-build:
     name: "Build Full Site"
