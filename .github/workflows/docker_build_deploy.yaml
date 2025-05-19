@@ -29,7 +29,7 @@ on:
         default: 'latest'
       varnish-version: 
         description: 'The version of varnish to use. You can use the remotes syntax to specify a version to use. Defaults to latest on the r-universe.'
-        default: 'latest'        
+        default: 'latest'
   workflow_run:
     workflows: ["03 Maintain: Apply Package Cache"]
     types:
@@ -103,15 +103,15 @@ jobs:
       - name: "Get var/input Workbench package versions"
         id: input-wb-vers
         run: |
-          VARNISH_VERSION_INPUT="${{ github.event.inputs.varnish-version || vars.varnish-version }}"
+          VARNISH_VERSION_INPUT="${{ github.event.inputs.varnish-version || vars.varnish-version || 'latest' }}"
           if [ -z "$VARNISH_VERSION_INPUT" ]; then
             echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
           fi
-          SANDPAPER_VERSION_INPUT="${{ github.event.inputs.sandpaper-version || vars.sandpaper-version  }}"
+          SANDPAPER_VERSION_INPUT="${{ github.event.inputs.sandpaper-version || vars.sandpaper-version || 'latest' }}"
           if [ -z "$SANDPAPER_VERSION_INPUT" ]; then
             echo "sandpaper-version-override=$SANDPAPER_VERSION_INPUT" >> $GITHUB_OUTPUT
           fi
-          PEGBOARD_VERSION_INPUT="${{ github.event.inputs.pegboard-version || vars.pegboard-version  }}"
+          PEGBOARD_VERSION_INPUT="${{ github.event.inputs.pegboard-version || vars.pegboard-version || 'latest' }}"
           if [ -z "$PEGBOARD_VERSION_INPUT" ]; then
             echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
           fi
