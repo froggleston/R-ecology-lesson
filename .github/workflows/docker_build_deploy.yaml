@@ -106,9 +106,9 @@ jobs:
         GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         RENV_PATHS_ROOT: /home/rstudio/lesson/renv
         RENV_VERSION: ${{ needs.prepare.outputs.renv-cache-hashsum }}
-        VARNISH_VER: ${{ inputs.varnish-version }}
-        SANDPAPER_VER: ${{ inputs.sandpaper-version }}
-        PEGBOARD_VER: ${{ inputs.pegboard-version }}
+        VARNISH_VER: ${{ github.event.inputs.varnish-version }}
+        SANDPAPER_VER: ${{ github.event.inputs.sandpaper-version }}
+        PEGBOARD_VER: ${{ github.event.inputs.pegboard-version }}
       volumes:
         - ${{ github.workspace }}:/home/rstudio/lesson
       options: --cpus 1
