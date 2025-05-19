@@ -92,7 +92,7 @@ jobs:
   
   prepare-wb-package-override:
     name: "Override any Workbench packages?"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       varnish-version: ${{ steps.input-wb-vers.outputs.varnish-version-override || steps.config-wb-vers.outputs.varnish-version-override }}
       sandpaper-version: ${{ steps.input-wb-vers.outputs.sandpaper-version-override || steps.config-wb-vers.outputs.sandpaper-version-override }}
