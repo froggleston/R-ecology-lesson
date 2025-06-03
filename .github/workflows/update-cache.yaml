@@ -1,4 +1,4 @@
-name: "02 Maintain: Check for Updated Packages"
+name: "03 Maintain: Update Package Cache"
 
 on:
   workflow_dispatch:
@@ -7,39 +7,20 @@ on:
         description: 'Who triggered this build (enter github username to tag yourself)?'
         required: true
         default: 'monthly run'
-      skip-restore:
-        description: 'Force lockfile update?'
-        required: false
-        default: false
-        type: boolean
-      update-packages:
-        description: 'Install any package updates?'
-        required: false
-        default: true
-        type: boolean
-      generate-cache:
-        description: 'Generate separate package cache?'
-        required: false
-        default: false
-        type: boolean
   schedule:
     # Run every tuesday
     - cron: '0 0 * * 2'
 
-env:
-  LOCKFILE_CACHE_GEN: ${{ github.event.inputs.generate-cache || 'false' }}
-  SKIP_RENV_RESTORE: ${{ github.event.inputs.skip-restore || 'false' }}
-
 jobs:
   preflight:
-    name: "Preflight: Manual or Scheduled Trigger?"
-    runs-on: ubuntu-latest
+    name: "Preflight Check"
+    runs-on: ubuntu-22.04
     outputs:
       ok: ${{ steps.check.outputs.ok }}
     steps:
       - id: check
         run: |
-          if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then
+          if [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
             echo "ok=true" >> $GITHUB_OUTPUT
             echo "Running on request"
           # using single brackets here to avoid 08 being interpreted as octal
@@ -53,36 +34,47 @@ jobs:
             echo "Not Running Today"
           fi
 
-  check-renv:
-    name: "Check If We Need {renv}"
-    runs-on: ubuntu-latest
+  check_renv:
+    name: "Check if We Need {renv}"
+    runs-on: ubuntu-22.04
     needs: preflight
     if: ${{ needs.preflight.outputs.ok == 'true'}}
     outputs:
-      renv-needed: ${{ steps.check-for-renv.outputs.exists }}
+      needed: ${{ steps.renv.outputs.exists }}
     steps:
       - name: "Checkout Lesson"
         uses: actions/checkout@v4
-      - id: check-for-renv
+      - id: renv
         run: |
           if [[ -d renv ]]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           fi
 
-  update_cache:
-    name: "Create Package Update Pull Request"
+  check_token:
+    name: "Check SANDPAPER_WORKFLOW token"
     runs-on: ubuntu-22.04
-    needs: check-renv
-    permissions:
-      contents: write
-      pull-requests: write
-      actions: write
-      issues: write
-    if: ${{ needs.check-renv.outputs.renv-needed == 'true' }}
+    needs: check_renv
+    if: ${{ needs.check_renv.outputs.needed == 'true' }}
+    outputs:
+      workflow: ${{ steps.validate.outputs.wf }}
+      repo: ${{ steps.validate.outputs.repo }}
+    steps:
+      - name: "validate token"
+        id: validate
+        uses: carpentries/actions/check-valid-credentials@main
+        with:
+          token: ${{ secrets.SANDPAPER_WORKFLOW }}
+
+  update_cache:
+    name: "Update Package Cache"
+    needs: check_token
+    if: ${{ needs.check_token.outputs.repo== 'true' }}
+    runs-on: ubuntu-22.04
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       RENV_PATHS_ROOT: ~/.local/share/renv/
     steps:
+
       - name: "Checkout Lesson"
         uses: actions/checkout@v4
 
@@ -94,11 +86,8 @@ jobs:
 
       - name: "Update {renv} deps and determine if a PR is needed"
         id: update
-        uses: froggleston/actions/update-lockfile@main
+        uses: carpentries/actions/update-lockfile@main
         with:
-          update: ${{ github.event.inputs.update-packages }}
-          skip-restore: ${{ env.SKIP_RENV_RESTORE }}
-          generate-cache: ${{ env.LOCKFILE_CACHE_GEN }}
           cache-version: ${{ secrets.CACHE_VERSION }}
 
       - name: Create Pull Request
@@ -106,7 +95,7 @@ jobs:
         if: ${{ steps.update.outputs.n > 0 }}
         uses: carpentries/create-pull-request@main
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SANDPAPER_WORKFLOW }}
           delete-branch: true
           branch: "update/packages"
           commit-message: "[actions] update ${{ steps.update.outputs.n }} packages"
@@ -134,16 +123,3 @@ jobs:
             [1]: https://github.com/carpentries/create-pull-request/tree/main
           labels: "type: package cache"
           draft: false
-
-      - name: Skip PR creation
-        if: ${{ steps.update.outputs.n == 0 }}
-        run: |
-          echo "No updates needed, skipping PR creation"
-
-      # thanks @Bisaloo! - https://github.com/carpentries/sandpaper/issues/646#issuecomment-2829578435
-      - name: Trigger checks
-        if: ${{ steps.cpr.outputs.pull-request-number != '' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh workflow run docker_pr_receive.yaml --field pr_number=${{ steps.cpr.outputs.pull-request-number }}
