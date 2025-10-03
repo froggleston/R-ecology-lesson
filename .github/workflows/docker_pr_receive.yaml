@@ -184,11 +184,13 @@ jobs:
           workflow: ${{ github.workflow }}
 
       - name: Configure AWS credentials via OIDC
+        id: aws-creds
         if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
           role-to-assume: ${{ secrets.AWS_GH_OIDC_ARN }}
           aws-region: ${{ secrets.AWS_GH_OIDC_REGION }}
+          output-credentials: true
 
       - name: Get cache object from S3
         id: s3-cache
@@ -196,6 +198,9 @@ jobs:
         if: ${{ needs.check-renv.outputs.renv-needed == 'true' }}
         with:
           # insecure: false # optional, use http instead of https. default false
+          accessKey: ${{ steps.aws-creds.outputs.aws-access-key-id }}
+          secretKey: ${{ steps.aws-creds.outputs.aws-secret-access-key }}
+          sessionToken: ${{ steps.aws-creds.outputs.aws-session-token }}
           bucket: workbench-docker-caches
           path: |
             /home/rstudio/lesson/renv
