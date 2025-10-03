@@ -41,7 +41,7 @@ jobs:
     steps:
       - name: "Check for renv"
         id: check-for-renv
-        uses: carpentries/actions/renv-checks@main
+        uses: carpentries/actions/renv-checks@frog-s3-test-1
   no-renv-cache-used:
     name: "No renv cache used"
     runs-on: ubuntu-latest
@@ -139,7 +139,7 @@ jobs:
 
       - name: "Validate Current Org and Workflow"
         id: validate-org-workflow
-        uses: carpentries/actions/validate-org-workflow@main
+        uses: carpentries/actions/validate-org-workflow@frog-s3-test-1
         with:
           repo: ${{ github.repository }}
           workflow: ${{ github.workflow }}
