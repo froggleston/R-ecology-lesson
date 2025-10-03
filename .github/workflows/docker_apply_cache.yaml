@@ -128,10 +128,36 @@ jobs:
         with:
           WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG }}
 
-      - name: Cache renv Directory
-        uses: actions/cache@v4
+      # - name: Cache renv Directory
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: /home/rstudio/lesson/renv
+      #     key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ needs.check-renv.outputs.renv-cache-hashsum }}
+      #     restore-keys:
+      #       ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-
+
+      - name: "Validate Current Org and Workflow"
+        id: validate-org-workflow
+        uses: carpentries/actions/validate-org-workflow@main
         with:
-          path: /home/rstudio/lesson/renv
+          repo: ${{ github.repository }}
+          workflow: ${{ github.workflow }}
+
+      - name: Configure AWS credentials via OIDC
+        if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          role-to-assume: ${{ secrets.AWS_GH_OIDC_ARN }}
+          aws-region: ${{ secrets.AWS_GH_OIDC_REGION }}
+
+      - name: Upload cache object to S3
+        uses: tespkg/actions-cache@v1.9.0
+        with:
+          # insecure: false # optional, use http instead of https. default false
+          bucket: workbench-docker-caches
+          path: |
+            /home/rstudio/lesson/renv
+            /usr/local/lib/R/site-library
           key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ needs.check-renv.outputs.renv-cache-hashsum }}
           restore-keys:
             ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-

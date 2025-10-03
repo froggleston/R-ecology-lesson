@@ -105,7 +105,7 @@ jobs:
 
       - name: "Setup Lesson Dependencies"
         id: build-container-deps
-        uses: carpentries/actions/build-container-deps@main
+        uses: carpentries/actions/build-container-deps@frog-s3-test-1
         with:
           WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG || 'latest' }}
           LESSON_PATH: ${{ vars.LESSON_PATH || '/home/rstudio/lesson' }}
