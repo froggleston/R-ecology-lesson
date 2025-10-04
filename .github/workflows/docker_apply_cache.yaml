@@ -34,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: preflight
     if: ${{ needs.preflight.outputs.do-apply == 'true' }}
+    permissions:
+      id-token: write # OIDC permission required
     outputs:
       renv-needed: ${{ steps.check-for-renv.outputs.renv-needed }}
       renv-cache-hashsum: ${{ steps.check-for-renv.outputs.renv-cache-hashsum }}
