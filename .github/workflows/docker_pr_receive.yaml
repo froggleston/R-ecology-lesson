@@ -176,9 +176,15 @@ jobs:
         run: |
           Rscript /home/rstudio/.workbench/setup_lesson_deps.R
 
+      - name: Get Container Version Used
+        id: wb-vers
+        uses: carpentries/actions/container-version@main
+        with:
+          WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG }}
+
       - name: "Validate Current Org and Workflow"
         id: validate-org-workflow
-        uses: carpentries/actions/validate-org-workflow@main
+        uses: carpentries/actions/validate-org-workflow@frog-s3-test-1
         with:
           repo: ${{ github.repository }}
           workflow: ${{ github.workflow }}

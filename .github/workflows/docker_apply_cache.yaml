@@ -47,6 +47,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_GH_OIDC_ARN }}
           aws-region: ${{ secrets.AWS_GH_OIDC_REGION }}
+          WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG || 'latest' }}
 
   no-renv-cache-used:
     name: "No renv cache used"
