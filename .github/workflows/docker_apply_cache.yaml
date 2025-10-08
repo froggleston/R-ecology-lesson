@@ -136,14 +136,6 @@ jobs:
         with:
           WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG }}
 
-      # - name: Cache renv Directory
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: /home/rstudio/lesson/renv
-      #     key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ needs.check-renv.outputs.renv-cache-hashsum }}
-      #     restore-keys:
-      #       ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-
-
       - name: "Validate Current Org and Workflow"
         id: validate-org-workflow
         uses: carpentries/actions/validate-org-workflow@frog-s3-test-1
