@@ -63,8 +63,11 @@ jobs:
     steps:
       - name: "Checkout Lesson"
         uses: actions/checkout@v4
-      - id: check-for-renv
+
+      - name: "Check for renv"
+        id: check-for-renv
         run: |
+
           if [[ -d renv ]]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           fi
