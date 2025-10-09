@@ -59,18 +59,17 @@ jobs:
     needs: preflight
     if: ${{ needs.preflight.outputs.ok == 'true' }}
     outputs:
-      renv-needed: ${{ steps.check-for-renv.outputs.exists }}
+      renv-needed: ${{ steps.renv-check.outputs.renv-needed }}
     steps:
       - name: "Checkout Lesson"
         uses: actions/checkout@v4
 
-      - name: "Check for renv"
-        id: check-for-renv
-        run: |
-
-          if [[ -d renv ]]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          fi
+      - name: "Is renv required?"
+        id: renv-check
+        uses: carpentries/actions/renv-checks@frog-s3-test-1
+        with:
+          CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
+          skip-cache-check: true
 
   update_cache:
     name: "Create Package Update Pull Request"
@@ -149,7 +148,7 @@ jobs:
             steps.validate-token.outputs.wf == 'true' ||
             steps.validate-org-workflow.outputs.is_valid == 'false'
           )
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v7.0.8
         with:
           token: ${{ steps.set-pat.outputs.pat || secrets.SANDPAPER_WORKFLOW || secrets.GITHUB_TOKEN }}
           delete-branch: true

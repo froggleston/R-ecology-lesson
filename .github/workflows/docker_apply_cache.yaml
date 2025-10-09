@@ -153,7 +153,7 @@ jobs:
           output-credentials: true
 
       - name: Upload cache object to S3
-        uses: tespkg/actions-cache@v1.9.0
+        uses: carpentries/actions-cache@frog-matchedkey-1
         with:
           # insecure: false # optional, use http instead of https. default false
           accessKey: ${{ steps.aws-creds.outputs.aws-access-key-id }}
