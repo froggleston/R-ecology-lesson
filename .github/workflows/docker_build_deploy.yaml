@@ -39,6 +39,8 @@ jobs:
       do-build: ${{ steps.build-check.outputs.do-build }}
       renv-needed: ${{ steps.build-check.outputs.renv-needed }}
       renv-cache-hashsum: ${{ steps.build-check.outputs.renv-cache-hashsum || '' }}
+      wb-vers: ${{ steps.wb-vers.outputs.container-version }}
+      last-wb-vers: ${{ steps.wb-vers.outputs.last-container-version }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -50,11 +52,31 @@ jobs:
           CACHE_VERSION: ${{ secrets.CACHE_VERSION || vars.CACHE_VERSION || github.event.inputs.CACHE_VERSION || '' }}
           WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG || 'latest' }}
 
+      - name: Get container version used
+        id: wb-vers
+        if: ${{ steps.build-check.outputs.do-build == 'true' }}
+        uses: carpentries/actions/container-version@frog-s3-test-1
+        with:
+          WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG }}
+
+  force-update-cache:
+    name: "Update Cache due to new Workbench Version"
+    runs-on: ubuntu-latest
+    needs: [preflight]
+    if: ${{ needs.preflight.outputs.renv-needed == 'true' && (needs.preflight.outputs.wb-vers != needs.preflight.outputs.last-wb-vers) }}
+    steps:
+      - name: "Trigger Update Cache Workflow"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run update-cache.yaml
+        shell: bash
+
   full-build:
     name: "Build Full Site"
     runs-on: ubuntu-latest
     needs: [preflight]
-    if: ${{ needs.preflight.outputs.do-build == 'true' }}
+    if: ${{ needs.preflight.outputs.do-build == 'true' && (needs.preflight.outputs.wb-vers == needs.preflight.outputs.last-wb-vers) }}
     env:
         RENV_EXISTS: ${{ needs.preflight.outputs.renv-needed }}
         RENV_HASH: ${{ needs.preflight.outputs.renv-cache-hashsum }}
@@ -102,6 +124,7 @@ jobs:
           aws-region: ${{ secrets.AWS_GH_OIDC_REGION }}
 
       - name: Run Container and Build Site
+        id: build-and-deploy
         run: |
           library(sandpaper)
           reset <- "${{ github.event.inputs.reset }}" == "true"
@@ -109,3 +132,17 @@ jobs:
           sandpaper::package_cache_trigger(TRUE)
           sandpaper:::ci_deploy(reset = reset, skip_manage_deps = skip_manage_deps)
         shell: Rscript {0}
+
+      - name: Record Container Version Used
+        id: record-wb-vers
+        if: ${{ steps.build-and-deploy.outcome == 'success' && (steps.wb-vers.outputs.container-version != steps.wb-vers.outputs.last-container-version) }}
+        run: |
+          echo "${{ steps.wb-vers.outputs.container-version }}" > .github/workflows/workbench-docker-version.txt
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@github.com"
+          git add .github/workflows/workbench-docker-version.txt
+          if [ ! -z "$(git status --porcelain)" ]; then
+            git commit -m "Update workbench-docker-version.txt to ${{ steps.wb-vers.outputs.container-version }}"
+            git push origin {{ github.ref_name }}
+          fi
+        shell: bash
