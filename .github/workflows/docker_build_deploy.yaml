@@ -65,6 +65,9 @@ jobs:
     needs: [preflight]
     if: ${{ needs.preflight.outputs.renv-needed == 'true' && (needs.preflight.outputs.wb-vers != needs.preflight.outputs.last-wb-vers) }}
     steps:
+      - name: "Checkout Lesson"
+        uses: actions/checkout@v4
+
       - name: "Trigger Update Cache Workflow"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
