@@ -158,7 +158,7 @@ jobs:
           git config --local user.email "actions@github.com"
           git add .github/workflows/workbench-docker-version.txt
           if [ ! -z "$(git status --porcelain)" ]; then
-            git commit -m "Update workbench-docker-version.txt to ${{ needs.preflight.outputs.container-version }}"
-            git push origin {{ github.ref_name }}
+            git commit -m "Update workbench-docker-version.txt to ${{ needs.preflight.outputs.wb-vers }}"
+            git push origin ${{ github.ref_name }}
           fi
         shell: bash
