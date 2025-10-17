@@ -60,31 +60,35 @@ jobs:
         with:
           WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG }}
 
-  force-verify-cache:
-    name: "Verify Cache due to new Workbench Version"
+  verify-wb:
+    name: "Verify Workbench Version"
     runs-on: ubuntu-latest
     outputs:
       workbench-update: ${{ steps.trigger-cache-update.outputs.workbench-update }}
     needs: [preflight]
-    if: ${{ needs.preflight.outputs.renv-needed == 'true' && (needs.preflight.outputs.wb-vers != needs.preflight.outputs.last-wb-vers) }}
+    if: ${{ needs.preflight.outputs.renv-needed == 'true' }}
     steps:
       - name: "Checkout Lesson"
         uses: actions/checkout@v4
 
-      - name: "Trigger Update Cache Workflow"
+      - name: "Trigger Update Cache Workflow?"
         id: trigger-cache-update
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "workbench-update=true" >> "$GITHUB_OUTPUT"
-          gh workflow run update-cache.yaml
+          if [[ ${{ needs.preflight.outputs.wb-vers != needs.preflight.outputs.last-wb-vers }} ]]; then
+            echo "workbench-update=true" >> "$GITHUB_OUTPUT"
+            gh workflow run update-cache.yaml
+          else
+            echo "workbench-update=false" >> "$GITHUB_OUTPUT"
+          fi
         shell: bash
 
   full-build:
     name: "Build Full Site"
     runs-on: ubuntu-latest
-    needs: [preflight, force-verify-cache]
-    if: always() && ${{ needs.preflight.outputs.do-build == 'true' && needs.force-verify-cache.outputs.workbench-update != 'true' }}
+    needs: [preflight, verify-wb]
+    if: always() && ${{ needs.preflight.outputs.do-build == 'true' && needs.verify-wb.outputs.workbench-update != 'true' }}
     env:
         RENV_EXISTS: ${{ needs.preflight.outputs.renv-needed }}
         RENV_HASH: ${{ needs.preflight.outputs.renv-cache-hashsum }}

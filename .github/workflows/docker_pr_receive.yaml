@@ -152,6 +152,7 @@ jobs:
       - name: Mark Repository as Safe
         run: |
           git config --global --add safe.directory $(pwd)
+          git config --global --add safe.directory /home/rstudio/lesson
 
       - name: "Ensure sandpaper is loadable"
         run: |
