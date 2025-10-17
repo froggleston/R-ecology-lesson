@@ -153,10 +153,10 @@ jobs:
       - name: Record Container Version Used
         id: record-wb-vers
         run: |
-          echo "${{ needs.preflight.outputs.container-version }}" > .github/workflows/workbench-docker-version.txt
+          echo "${{ needs.preflight.outputs.container-version }}" > .github/workbench-docker-version.txt
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
-          git add .github/workflows/workbench-docker-version.txt
+          git add .github/workbench-docker-version.txt
           if [ ! -z "$(git status --porcelain)" ]; then
             git commit -m "Update workbench-docker-version.txt to ${{ needs.preflight.outputs.wb-vers }}"
             git push origin ${{ github.ref_name }}
