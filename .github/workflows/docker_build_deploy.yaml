@@ -147,6 +147,9 @@ jobs:
     needs: [preflight, full-build]
     if: always() && ${{ needs.preflight.outputs.workbench-container-file-exists == 'false' || (needs.full-build.build-and-deploy.outcome == 'success' && needs.preflight.outputs.wb-vers != needs.preflight.outputs.last-wb-vers) }}
     steps:
+      - name: "Checkout Lesson"
+        uses: actions/checkout@v4
+
       - name: Record Container Version Used
         id: record-wb-vers
         run: |
