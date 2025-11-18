@@ -46,6 +46,7 @@ It is a good practice not to put `install.packages()` into a script. This is bec
 :::::::::::::::::::::::::::::::::::::
 
 ```{r load-tidyverse-package, message=FALSE}
+library(aramappings)
 library(ggplot2)
 ```
 
