@@ -54,14 +54,12 @@ You have to install R before you install RStudio.
 
 ::::::: spoiler
 
-## For Linux 
+## For Linux
 
-* Download R from the [CRAN website](https://cran.r-project.org/bin/macosx/).
-* Select the `.pkg` file for the latest R version
-* Double click on the downloaded file to install R
-* It is also a good idea to install [XQuartz](https://www.xquartz.org/) (needed by some packages)
+* Click on your distribution in the [Linux folder of the CRAN website](https://cran.r-project.org/bin/linux/). Linux Mint users should follow instructions for Ubuntu.
+* Go through the instructions for your distribution to install R.
 * Go to the [RStudio download page](https://www.rstudio.com/products/rstudio/download/#download)
-* Under *Installers* select **Your Version of Linux - RSTUDIO-xxxx.yy.z-zzz.dmg** (where x = year, y = month, and z represent version numbers)
+* Select the relevant installer for your Linux system (Ubuntu/Debian or Fedora)
 * Double click the file to install RStudio
 * Once it's installed, open RStudio to make sure it works and you don't get any error messages.
 
@@ -120,9 +118,9 @@ Sometimes, package updates introduce changes that break your old code, which can
 
 ### Download the data
 
-We will download the data directly from R during the lessons. However, if you are expecting problems with the network, it may be better to download the data beforehand and store it on your machine.
+We will download the data we need during the lessons. However, if you are expecting problems with the network, it may be better to download the data beforehand and store it on your machine.
 
-The data files for the lesson can be downloaded manually:
+The data files for the lesson can be downloaded from:
 
  - [cleaned data](../episodes/data/cleaned/surveys_complete_77_89.csv) and 
  - [zip file of raw data](../episodes/data/new_data.zip).

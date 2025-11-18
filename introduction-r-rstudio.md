@@ -16,8 +16,6 @@ exercises: 0
 - Understand the difference between R and RStudio
 - Describe the purpose of the different RStudio panes
 - Organize files and directories into R Projects
-- Use the RStudio help interface to get help with R functions
-- Be able to format questions to get help in the broader R community
 
 ::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -173,6 +171,8 @@ Let's start making our new folders. Go to the **Files** pane (bottom right), and
 ![](fig/files_pane.png){alt='RStudio Files pane with current directory path highlighted.'}
 
 Next, click the **New Folder** button, and type in `scripts` to generate your `scripts` folder. It should appear in the Files list now. Repeat the process to make your `data`, `images`, and `documents` folders. Then, click on the `data` folder in the Files pane. This will take you into the `data` folder, which will be empty. Use the **New Folder** button to create `raw` and `cleaned` folders. To return to the `R-Ecology-Workshop` folder, click on it in the file path, which is highlighted in yellow in the previous image. It's worth noting that the **Files** pane helps you create, find, and open files, but moving through your files won't change where the **working directory** of your project is.
+
+We have prepared a cleaned dataset that you will use towards the end of the workshop. Since you're setting up your project directory now, it's a good time to download it and add it to your directory. Click this link to download the file:  [cleaned data](data/cleaned/surveys_complete_77_89.csv). You may be prompted to save the file on your computer somewhere, or it might download automatically to a Downloads folder. If you are prompted, save it inside the `cleaned` data folder, which is in the `data` folder you just created. If you are not prompted choose a location, wait until it has downloaded and then move it from its current location to the `cleaned` folder using whatever method you would normally use to move files.
 
 ## Working in R and RStudio
 

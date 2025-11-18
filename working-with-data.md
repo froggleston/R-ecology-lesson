@@ -1,7 +1,9 @@
 ---
 title: "Working with data"
+# FIXME: 'teaching' timing is inclusive of 'exercises' timing. 
+# We should split it at some point.
 teaching: 120
-exercises: 4
+exercises: 0
 ---
 
 <!-- - importing complete_old CSV -->
@@ -70,11 +72,8 @@ library(tidyverse)
 
 ## Importing data
 
-Up until this point, we have been working with the `complete_old` dataframe contained in the `ratdat` package. However, you typically won't access data from an R package; it is much more common to access data files stored somewhere on your computer. We are going to download a CSV file containing the surveys data to our computer, which we will then read into R.
+Up until this point, we have been working with the `complete_old` dataframe contained in the `ratdat` package. However, you typically won't access data from an R package; it is much more common to access data files stored somewhere on your computer. We are now going to start using the data in our `cleaned` directory inside the `data` directory that you downloaded at the beginning of the lesson ([instructions here](https://datacarpentry.github.io/R-ecology-lesson/introduction-r-rstudio.html#organizing-your-project-directory)). This file is called `surveys_complete_77_89.csv`.
 
-Click this link to download the file: <https://datacarpentry.org/R-ecology-lesson/data/cleaned/surveys_complete_77_89.csv>.
-
-You will be prompted to save the file on your computer somewhere. Save it inside the `cleaned` data folder, which is in the `data` folder in your `R-Ecology-Workshop` folder. Once it's inside our project, we will be able to point R towards it.
 
 #### File paths
 

@@ -1,7 +1,9 @@
 ---
 title: "Exploring and understanding data"
+# FIXME: 'teaching' timing is inclusive of 'exercises' timing. 
+# We should split it at some point.
 teaching: 60
-exercises: 3
+exercises: 0
 ---
 
 :::::::::::::::::::::::::::::::::::::: questions 
@@ -17,6 +19,8 @@ exercises: 3
 - Use vectors as function arguments
 - Create and convert factors
 - Understand how R assigns values to objects
+- Use the RStudio help interface to get help with R functions
+- Be able to format questions to get help in the broader R community
 
 ::::::::::::::::::::::::::::::::::::::::::::::::
 
