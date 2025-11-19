@@ -45,6 +45,14 @@ It is a good practice not to put `install.packages()` into a script. This is bec
 
 
 ``` r
+library(aramappings)
+```
+
+``` error
+Error in library(aramappings): there is no package called 'aramappings'
+```
+
+``` r
 library(ggplot2)
 ```
 
