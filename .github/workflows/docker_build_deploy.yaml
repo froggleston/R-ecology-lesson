@@ -26,10 +26,15 @@ on:
         required: true
         default: false
         type: boolean
-  workflow_run:
-    workflows: ["03 Maintain: Apply Package Cache"]
-    types:
-      - completed
+  # workflow_run:
+  #   workflows: ["03 Maintain: Apply Package Cache"]
+  #   types:
+  #     - completed
+
+# only one build/deploy at a time
+concurrency:
+  group: docker-build-deploy
+  cancel-in-progress: true
 
 jobs:
   preflight:
@@ -110,7 +115,7 @@ jobs:
 
       - name: "Setup Lesson Dependencies"
         id: build-container-deps
-        uses: carpentries/actions/build-container-deps@frog-s3-test-2
+        uses: carpentries/actions/build-container-deps@frog-s3-test-1
         with:
           CACHE_VERSION: ${{ vars.CACHE_VERSION || github.event.inputs.CACHE_VERSION || '' }}
           WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG || 'latest' }}
