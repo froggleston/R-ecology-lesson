@@ -100,7 +100,7 @@ jobs:
 
       - name: "Update {renv} deps and determine if a PR is needed"
         id: update
-        uses: carpentries/actions/update-lockfile@main
+        uses: carpentries/actions/update-lockfile@frog-s3-test-1
         with:
           update: ${{ env.UPDATE_PACKAGES }}
           skip-restore: ${{ env.SKIP_RENV_RESTORE }}
@@ -207,7 +207,7 @@ jobs:
       - name: "Trigger checks"
         if: |
           steps.cpr.outputs.pull-request-number != '' &&
-          steps.validate-token.outputs.wf != 'true'
+          steps.validate-org-workflow.outputs.is_valid != 'true'
         run: |
           gh workflow run docker_pr_receive.yaml --field pr_number=${{ steps.cpr.outputs.pull-request-number }}
         shell: bash
