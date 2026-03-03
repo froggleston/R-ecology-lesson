@@ -763,7 +763,7 @@ Warning: Removed 1692 rows containing missing values or values outside the scale
 (`geom_point()`).
 ```
 
-<img src="fig/working-with-data-rendered-date-plot-challenge-answer-1.png" width="600" height="600" style="display: block; margin: auto;" />
+<img src="fig/working-with-data-rendered-date-plot-challenge-answer-1.png" alt="" width="600" height="600" style="display: block; margin: auto;" />
 
 This isn't necessarily the most useful plot, but we will learn some techniques that will help produce nice time series plots
 
@@ -823,8 +823,12 @@ surveys %>%
 ```
 
 ``` output
-`summarise()` has grouped output by 'species_id'. You can override using the
-`.groups` argument.
+`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by species_id and sex.
+ℹ Output is grouped by species_id.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(species_id, sex))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.
 ```
 
 ``` output
@@ -857,8 +861,12 @@ surveys %>%
 ```
 
 ``` output
-`summarise()` has grouped output by 'species_id'. You can override using the
-`.groups` argument.
+`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by species_id and sex.
+ℹ Output is grouped by species_id.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(species_id, sex))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.
 ```
 
 ``` output
@@ -892,8 +900,12 @@ surveys %>%
 ```
 
 ``` output
-`summarise()` has grouped output by 'species_id'. You can override using the
-`.groups` argument.
+`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by species_id and sex.
+ℹ Output is grouped by species_id.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(species_id, sex))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.
 ```
 
 ``` output
@@ -927,8 +939,12 @@ surveys %>%
 ```
 
 ``` output
-`summarise()` has grouped output by 'species_id'. You can override using the
-`.groups` argument.
+`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by species_id and sex.
+ℹ Output is grouped by species_id.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(species_id, sex))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.
 ```
 
 ``` output
@@ -997,8 +1013,12 @@ surveys %>%
 ```
 
 ``` output
-`summarise()` has grouped output by 'species_id'. You can override using the
-`.groups` argument.
+`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by species_id and sex.
+ℹ Output is grouped by species_id.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(species_id, sex))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.
 ```
 
 ``` output
@@ -1100,8 +1120,12 @@ surveys_daily_counts <- surveys %>%
 ```
 
 ``` output
-`summarise()` has grouped output by 'date'. You can override using the
-`.groups` argument.
+`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by date and sex.
+ℹ Output is grouped by date.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(date, sex))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.
 ```
 
 ``` r
@@ -1124,7 +1148,7 @@ surveys_daily_counts %>%
   geom_line()
 ```
 
-<img src="fig/working-with-data-rendered-time-series-challenge-answer-1.png" width="600" height="600" style="display: block; margin: auto;" />
+<img src="fig/working-with-data-rendered-time-series-challenge-answer-1.png" alt="" width="600" height="600" style="display: block; margin: auto;" />
 
 ::::::::::::::::::::::::
 
@@ -1144,8 +1168,12 @@ sp_by_plot <- surveys %>%
 ```
 
 ``` output
-`summarise()` has grouped output by 'species_id'. You can override using the
-`.groups` argument.
+`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by species_id and plot_id.
+ℹ Output is grouped by species_id.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(species_id, plot_id))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.
 ```
 
 ``` r
