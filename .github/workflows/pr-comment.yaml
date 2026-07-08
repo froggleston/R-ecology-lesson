@@ -19,6 +19,7 @@ jobs:
       payload: ${{ steps.check-pr.outputs.payload }}
       number: ${{ steps.get-pr.outputs.NUM }}
       msg: ${{ steps.check-pr.outputs.MSG }}
+      warn: ${{ steps.check-pr.outputs.WARN }}
     steps:
       - name: "Download PR artifact"
         id: dl
@@ -188,6 +189,7 @@ jobs:
     env:
       NR: ${{ needs.test-pr.outputs.number }}
       body: ${{ needs.test-pr.outputs.msg }}
+      warn: ${{ needs.test-pr.outputs.warn }}
     permissions:
       pull-requests: write
     steps:
@@ -211,7 +213,8 @@ jobs:
 
       - name: "Comment on PR"
         id: comment-diff
-        uses: carpentries/actions/comment-diff@main
+        uses: carpentries/actions/comment-diff@frog-prchecks-1
         with:
           pr: ${{ env.NR }}
           body: ${{ env.body }}
+          warn: ${{ env.warn }}
