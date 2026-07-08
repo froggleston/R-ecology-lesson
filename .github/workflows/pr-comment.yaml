@@ -92,10 +92,11 @@ jobs:
       - name: "Comment result of validation"
         id: comment-diff
         if: always()
-        uses: carpentries/actions/comment-diff@main
+        uses: carpentries/actions/comment-diff@frog-prchecks-1
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
           body: ${{ steps.check-pr.outputs.MSG }}
+          warn: ${{ steps.check-pr.outputs.WARN }}
 
   # Create an orphan branch on this repository with two commits
   #  - the current HEAD of the md-outputs branch
