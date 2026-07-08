@@ -96,7 +96,7 @@ jobs:
 
       - name: "Check PR"
         id: check-pr
-        uses: carpentries/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@frog-prchecks-1
         with:
           pr: ${{ env.NR }}
           invalid: ${{ fromJSON(steps.hash.outputs.json)[github.repository] }}

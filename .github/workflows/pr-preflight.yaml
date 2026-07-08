@@ -25,7 +25,7 @@ jobs:
           EOF" >> $GITHUB_OUTPUT
       - name: "Check PR"
         id: check-pr
-        uses: carpentries/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@frog-prchecks-1
         with:
           pr: ${{ github.event.number }}
           invalid: ${{ fromJSON(steps.hash.outputs.json)[github.repository] }}
