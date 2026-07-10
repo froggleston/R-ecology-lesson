@@ -1,5 +1,5 @@
 name: "Pull Request Preflight Check"
-
+description: "PR Preflight Checks"
 on:
   pull_request_target:
     branches:
