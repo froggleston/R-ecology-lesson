@@ -82,7 +82,7 @@ jobs:
       - name: "Check PR"
         id: check-pr
         if: ${{ steps.dl.outputs.success == 'true' }}
-        uses: carpentries/actions/check-valid-pr@frog-prchecks-2
+        uses: carpentries/actions/check-valid-pr@main
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
           sha: ${{ github.event.workflow_run.head_sha }}
@@ -93,7 +93,7 @@ jobs:
       - name: "Comment result of validation"
         id: comment-diff
         if: always()
-        uses: carpentries/actions/comment-diff@frog-prchecks-1
+        uses: carpentries/actions/comment-diff@frog-commentdiff-race-1
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
           body: ${{ steps.check-pr.outputs.MSG }}
@@ -213,7 +213,7 @@ jobs:
 
       - name: "Comment on PR"
         id: comment-diff
-        uses: carpentries/actions/comment-diff@frog-prchecks-1
+        uses: carpentries/actions/comment-diff@frog-commentdiff-race-1
         with:
           pr: ${{ env.NR }}
           body: ${{ env.body }}
