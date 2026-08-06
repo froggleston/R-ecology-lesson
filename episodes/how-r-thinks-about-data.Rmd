@@ -25,6 +25,8 @@ exercises: 0
 ::::::::::::::::::::::::::::::::::::::::::::::::
 
 
+Test edit 1
+
 ## Setup
 
 ```{r setup, include=FALSE}
