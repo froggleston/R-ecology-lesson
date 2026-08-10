@@ -105,7 +105,7 @@ jobs:
           echo "latest_image=${latest_image,,}" >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - name: Build and push dependency image
+      - name: Build and push dependency image layer
         id: build-push-deps-layer
         uses: carpentries/actions/build-dependency-image@frog-ghcr-dep-layer-1
         with:
@@ -117,8 +117,8 @@ jobs:
           latest-image: ${{ steps.image.outputs.latest_image }}
           build-context: ${{ github.workspace }}
 
-      - name: Prune any old dependency layers
-        uses: carpentries/actions/prune-dependency-layers@frog-ghcr-dep-layer-1
+      - name: Prune any old dependency image layers
+        uses: carpentries/actions/prune-dependency-images@frog-ghcr-dep-layer-1
         if: steps.build-push-deps-layer.outcome == 'success'
         with:
           owner: ${{ github.repository_owner }}
