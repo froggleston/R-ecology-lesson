@@ -102,8 +102,10 @@ jobs:
           set -euo pipefail
           exact_image="ghcr.io/${IMAGE_OWNER}/${IMAGE_NAME}-deps:${WB_VERSION}_renv-${RENV_HASH}"
           latest_image="ghcr.io/${IMAGE_OWNER}/${IMAGE_NAME}-deps:latest"
-          echo "exact_image=$exact_image" >> "$GITHUB_OUTPUT"
-          echo "latest_image=$latest_image" >> "$GITHUB_OUTPUT"
+
+          # lowercaseify
+          echo "exact_image=${exact_image,,}" >> "$GITHUB_OUTPUT"
+          echo "latest_image=${latest_image,,}" >> "$GITHUB_OUTPUT"
 
       - name: Prepare dependency Dockerfile
         shell: bash
