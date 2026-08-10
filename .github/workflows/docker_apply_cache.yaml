@@ -119,7 +119,7 @@ jobs:
 
       - name: Prune any old dependency layers
         uses: carpentries/actions/prune-dependency-layers@frog-ghcr-dep-layer-1
-        if: build-push-deps-layer.outcome == 'success'
+        if: steps.build-push-deps-layer.outcome == 'success'
         with:
           owner: ${{ github.repository_owner }}
           owner-type: ${{ github.event.repository.owner.type }}
