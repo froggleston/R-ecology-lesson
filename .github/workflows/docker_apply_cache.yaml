@@ -7,6 +7,11 @@ on:
         description: 'Who triggered this build?'
         required: true
         default: 'Maintainer (via GitHub)'
+      force-dependency-image-rebuild:
+        description: 'Rebuild the dependency image layer even if one already exists?'
+        required: false
+        default: false
+        type: boolean
   pull_request:
     types:
       - closed
@@ -105,8 +110,30 @@ jobs:
           echo "latest_image=${latest_image,,}" >> "$GITHUB_OUTPUT"
         shell: bash
 
+      - name: Check for existing dependency image tag
+        id: image-exists
+        env:
+          EXACT_IMAGE: ${{ steps.image.outputs.exact_image }}
+        run: |
+          set -euo pipefail
+          if docker manifest inspect "${EXACT_IMAGE}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "## ⚠️ Dependency image already exists for this renv hash: ${EXACT_IMAGE}" >> $GITHUB_STEP_SUMMARY
+            echo "Dependency image already exists for this renv hash: ${EXACT_IMAGE}"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "No existing dependency image found for this renv hash: ${EXACT_IMAGE}"
+          fi
+        shell: bash
+
       - name: Build and push dependency image layer
         id: build-push-deps-layer
+        if: |
+          steps.image-exists.outputs.exists != 'true' ||
+          (
+            github.event_name == 'workflow_dispatch' &&
+            github.event.inputs.force-dependency-image-rebuild == 'true'
+          )
         uses: carpentries/actions/build-dependency-image@frog-ghcr-dep-layer-1
         with:
           workbench-tag: ${{ vars.WORKBENCH_TAG || 'latest' }}
