@@ -56,7 +56,7 @@ jobs:
           skip-cache-check: true
 
   no-renv-cache-used:
-    name: "No dependency image needed"
+    name: "No renv package dependency image needed"
     runs-on: ubuntu-latest
     needs: check-renv
     if: needs.check-renv.outputs.renv-needed != 'true'
@@ -65,7 +65,7 @@ jobs:
         run: echo "No renv dependency image needed for this lesson"
 
   update-renv-cache:
-    name: "Publish dependency image"
+    name: "Publish renv package dependency image"
     runs-on: ubuntu-latest
     needs: check-renv
     if: needs.check-renv.outputs.renv-needed == 'true'
@@ -92,7 +92,6 @@ jobs:
 
       - name: Set dependency image coordinates
         id: image
-        shell: bash
         env:
           IMAGE_OWNER: ${{ github.repository_owner }}
           IMAGE_NAME: ${{ github.event.repository.name }}
@@ -106,48 +105,18 @@ jobs:
           # lowercaseify
           echo "exact_image=${exact_image,,}" >> "$GITHUB_OUTPUT"
           echo "latest_image=${latest_image,,}" >> "$GITHUB_OUTPUT"
-
-      - name: Prepare dependency Dockerfile
         shell: bash
-        run: |
-          set -euo pipefail
-          cat > "${RUNNER_TEMP}/Dockerfile.deps" <<'EOF'
-          ARG WORKBENCH_TAG=${{ vars.WORKBENCH_TAG || 'latest' }}
-          FROM ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG} AS builder
-          ARG GITHUB_TOKEN
-          ENV WORKBENCH_PROFILE=ci \
-              GITHUB_PAT=${GITHUB_TOKEN} \
-              GITHUB_TOKEN=${GITHUB_TOKEN} \
-              RENV_PATHS_ROOT=/home/rstudio/lesson/renv \
-              RENV_PROFILE=lesson-requirements \
-              RENV_CONFIG_EXTERNAL_LIBRARIES=/usr/local/lib/R/site-library
-          WORKDIR /home/rstudio/lesson
-          COPY . /home/rstudio/lesson
-          RUN git config --global --add safe.directory /home/rstudio/lesson && \
-              Rscript /home/rstudio/.workbench/setup_lesson_deps.R && \
-              Rscript /home/rstudio/.workbench/fortify_renv_cache.R
-
-          FROM ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG}
-          ENV WORKBENCH_PROFILE=ci \
-              RENV_PATHS_ROOT=/home/rstudio/lesson/renv \
-              RENV_PROFILE=lesson-requirements \
-              RENV_CONFIG_EXTERNAL_LIBRARIES=/usr/local/lib/R/site-library
-          COPY --from=builder /home/rstudio/lesson/renv /home/rstudio/lesson/renv
-          COPY --from=builder /usr/local/lib/R/site-library /usr/local/lib/R/site-library
-          EOF
 
       - name: Build and push dependency image
-        uses: docker/build-push-action@v6
+        uses: carpentries/actions/build-dependency-image@frog-ghcr-dep-layer-1
         with:
-          context: ${{ github.workspace }}
-          file: ${{ runner.temp }}/Dockerfile.deps
-          push: true
-          build-args: |
-            WORKBENCH_TAG=${{ vars.WORKBENCH_TAG || 'latest' }}
-            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          tags: |
-            ${{ steps.image.outputs.exact_image }}
-            ${{ steps.image.outputs.latest_image }}
+          workbench-tag: ${{ vars.WORKBENCH_TAG || 'latest' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-repository: ${{ github.repository }}
+          github-sha: ${{ github.sha }}
+          exact-image: ${{ steps.image.outputs.exact_image }}
+          latest-image: ${{ steps.image.outputs.latest_image }}
+          build-context: ${{ github.workspace }}
 
   record-cache-result:
     name: "Record Caching Status"
