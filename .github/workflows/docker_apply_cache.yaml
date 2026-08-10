@@ -12,8 +12,6 @@ on:
       - closed
     branches:
       - main
-  schedule:
-    - cron: '0 0 * * 3' # every Wednesday at midnight UTC
 
 # queue cache runs
 concurrency:
@@ -108,6 +106,7 @@ jobs:
         shell: bash
 
       - name: Build and push dependency image
+        id: build-push-deps-layer
         uses: carpentries/actions/build-dependency-image@frog-ghcr-dep-layer-1
         with:
           workbench-tag: ${{ vars.WORKBENCH_TAG || 'latest' }}
@@ -117,6 +116,17 @@ jobs:
           exact-image: ${{ steps.image.outputs.exact_image }}
           latest-image: ${{ steps.image.outputs.latest_image }}
           build-context: ${{ github.workspace }}
+
+      - name: Prune any old dependency layers
+        uses: carpentries/actions/prune-dependency-layers@frog-ghcr-dep-layer-1
+        if: build-push-deps-layer.outcome == 'success'
+        with:
+          owner: ${{ github.repository_owner }}
+          owner-type: ${{ github.event.repository.owner.type }}
+          package-name: ${{ github.event.repository.name }}-deps
+          keep-count: 2
+        continue-on-error: true
+        background: true
 
   record-cache-result:
     name: "Record Caching Status"
