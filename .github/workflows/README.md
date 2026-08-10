@@ -39,7 +39,7 @@ $ git push origin main
 > - Cancel any "01 Maintain: Build and Deploy Site" workflow currently running
 > - Run the "02 Maintain: Check for Updated Packages" workflow and merge any PR opened to update the renv lockfile
 > - This should automatically run the "03 Maintain: Apply Package Cache" workflow to install packages and build the cache
-> - A successful cache buid should then trigger the "01 Maintain: Build and Deploy Site" workflow
+> - A successful cache build should then trigger the "01 Maintain: Build and Deploy Site" workflow
 
 ### Updating using GitHub
 
@@ -71,40 +71,40 @@ This will raise a PR with any changes to the workflows that are needed.
 If you are happy with the changes made, you can merge the PR into your lesson repository.
 
 
-## Package Caches for RMarkdown Lessons
+## Dependency Images for RMarkdown Lessons
 
-In summary, generating a reusable package cache is achieved by running the "02 Maintain: Check for Updated Packages" workflow, and then the "03 Maintain: Apply Package Cache" workflow.
+In summary, generating a reusable dependency layer is achieved by running the "02 Maintain: Check for Updated Packages" workflow, and then the "03 Maintain: Apply Package Cache" workflow.
 
 > [!NOTE]
 > Caching is only relevant for lessons that use Rmd files and renv to manage R packages.
 > If you are building basic markdown documents, caching will not apply to you, and the only
 > workflow that needs to be run is "01 Maintain: Build and Deploy Site".
 
-### Caching
+### Publishing dependency images
 
-The two cache management workflows are separated to ensure that once you have a successful build with a working renv cache, this cache is stored and will be reused by the Workbench Docker container.
-This means that lesson builds will be faster once an renv cache is created and reused by the Docker container.
+The two dependency workflows are separated to ensure that once you have a successful build with a working renv environment, the resulting dependency image is stored and will be reused by the Workbench Docker container.
+This means that lesson builds will be faster once a dependency image is created and reused by the Docker container.
 
-Another major bonus of this setup is that you can keep using this cache indefinitely to build your lesson.
+Another major bonus of this setup is that you can keep using this dependency image indefinitely to build your lesson.
 This is important if you need very specific versions of R packages ("pinning").
 
-If and when you want to perform an update to the cache, you can re-run the "02 Maintain: Check for Updated Packages" and verify that your lesson still builds with the new packages.
-If all looks good, re-run the "03 Maintain: Apply Package Cache" workflow, and this will write a new renv cache file to GitHub.
+If and when you want to perform an update to the dependency image, you can re-run the "02 Maintain: Check for Updated Packages" workflow and verify that your lesson still builds with the new packages.
+If all looks good, re-run the "03 Maintain: Apply Package Cache" workflow, and this will publish a new repository-local GHCR image for the lesson.
 
-In any case, the renv cache is invalidated by new versions of the `renv.lock` file.
+In any case, the dependency image is invalidated by new versions of the `renv.lock` file.
 This happens:
   - if you update your lockfile locally by using the `sandpaper::update_cache()` function, and then push it to the lesson repository
   - when you run the "02 Maintain: Check for Updated Packages" and there are new packages to install
 
-More information on managing local renv caches for lessons can be found in the [Sandpaper packages vignettes](https://carpentries.github.io/sandpaper/articles/building-with-renv.html).
+More information on managing local renv-based lesson dependencies can be found in the [Sandpaper packages vignettes](https://carpentries.github.io/sandpaper/articles/building-with-renv.html).
 
-#### Using different package cache versions
+#### Using different dependency image versions
 
-There are times when you may want to go back to a previous renv package cache file:
+There are times when you may want to go back to a previous dependency image:
   - if you run "02 Maintain: Check for Updated Packages" and "03 Maintain: Apply Package Cache" and the cache generation fails for some reason
   - if there is a new R package that produces incorrect or broken lesson output
 
-Cache files will have the following name format, where IMAGE is the workbench-docker image version, and HASHSUM is the `renv.lock` lockfile MD5 hash:
+Dependency images will have the following name format, where IMAGE is the workbench-docker image version, and HASHSUM is the `renv.lock` lockfile hash:
 
 ```
 IMAGE                                HASHSUM
@@ -112,7 +112,7 @@ IMAGE                                HASHSUM
 v0.2.4_renv-2e499eb706112971b2cffceb49b55a6efe49f3ed75cd6579b10ff224489daca4
 ```
 
-Copy the hashsum part of the desired cache file you want to use, e.g. `2e499eb706112971b2cffceb49b55a6efe49f3ed75cd6579b10ff224489daca4`.
+Copy the hashsum part of the desired image tag you want to use, e.g. `2e499eb706112971b2cffceb49b55a6efe49f3ed75cd6579b10ff224489daca4`.
 
 Then either:
  1. Add a repository variable called CACHE_VERSION, and paste in the hash
@@ -120,14 +120,14 @@ Then either:
  2. Run the "01 Maintain: Build and Deploy Site" manually, supplying the CACHE_VERSION input
     - Go to ...
 
-If you have no caches listed, make sure to run the "02 Maintain: Check for Updated Packages" and "03 Maintain: Apply Package Cache" to create a new renv cache file.
+If you have no images listed, make sure to run the "02 Maintain: Check for Updated Packages" and "03 Maintain: Apply Package Cache" workflows to publish a new dependency image.
 
 > [!NOTE]
-> If you are maintaining an official lesson, caches are saved in an AWS S3 bucket owned by the Carpentries.
-> Once a successful cache has been saved, these will be listed in the outputs of the "01 Maintain: Build and Deploy Site" workflow.
+> If you are maintaining an official lesson, dependency images are saved to the repository's GHCR package namespace.
+> Once a successful dependency image has been published, the build workflows will use it automatically when the matching tag exists.
 > 
-> If you are developing a lesson in your own repository, caches are saved on GitHub.
-> You can see available caches by going to the Actions tab, and clicking Caches on the left hand side.
+> If you are developing a lesson in your own repository, the images are still stored in that repository's GHCR package namespace.
+> You can see available images by going to the repository's Packages tab.
 
 
 ## User Settings
@@ -194,7 +194,7 @@ There are no repository variables for this workflow.
 
 ## Pull Request and Review Management
 
-Because our lessons execute code, pull requests are a security risk for any lesson and thus have security measures associted with them.
+Because our lessons execute code, pull requests are a security risk for any lesson and thus have security measures associated with them.
 **Do not merge any pull requests that do not pass checks and do not have bots commented on them.**
 
 This series of workflows all go together and are described in the following diagram and the below sections:
@@ -256,5 +256,5 @@ This emits an artifact that is the pull request number for the next action.
 
 ### Remove Pull Request Branch (pr-post-remove-branch.yaml)
 
-Tiggered by `pr-close-signal.yaml`.
+Triggered by `pr-close-signal.yaml`.
 This removes the temporary branch associated with the pull request (if it was created).

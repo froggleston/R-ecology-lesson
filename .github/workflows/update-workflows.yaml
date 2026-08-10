@@ -91,6 +91,7 @@ jobs:
         with:
           version: ${{ github.event.inputs.version || 'latest' }}
           clean: ${{ github.event.inputs.clean || '.yaml' }}
+          token: ${{ steps.set-pat.outputs.pat || secrets.SANDPAPER_WORKFLOW }}
 
       - name: Create Pull Request
         id: cpr
