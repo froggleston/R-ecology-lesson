@@ -162,6 +162,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           owner: ${{ github.repository_owner }}
           owner-type: ${{ github.event.repository.owner.type }}
+          repository: ${{ github.event.repository.name }}
           package-name: ${{ github.event.repository.name }}-deps
           keep-count: ${{ github.event.inputs.prune-keep-count }}
         continue-on-error: true
