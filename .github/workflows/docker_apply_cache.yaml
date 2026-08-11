@@ -144,16 +144,20 @@ jobs:
           latest-image: ${{ steps.image.outputs.latest_image }}
           build-context: ${{ github.workspace }}
 
+  prune-dependency-images:
+    name: "Prune Dependency Images"
+    runs-on: ubuntu-latest
+    needs: check-renv
+    steps:
       - name: Prune any old dependency image layers
         uses: carpentries/actions/prune-dependency-images@frog-ghcr-dep-layer-1
-        if: steps.build-push-deps-layer.outcome == 'success'
+        if: needs.check-renv.outputs.renv-needed == 'true'
         with:
           owner: ${{ github.repository_owner }}
           owner-type: ${{ github.event.repository.owner.type }}
           package-name: ${{ github.event.repository.name }}-deps
           keep-count: 2
         continue-on-error: true
-        background: true
 
   record-cache-result:
     name: "Record Caching Status"
