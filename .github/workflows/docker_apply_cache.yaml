@@ -12,6 +12,11 @@ on:
         required: false
         default: false
         type: boolean
+      prune-keep-count:
+        description: 'How many existing dependency image layers to keep?'
+        required: false
+        default: 1
+        type: number
   pull_request:
     types:
       - closed
@@ -158,7 +163,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           owner-type: ${{ github.event.repository.owner.type }}
           package-name: ${{ github.event.repository.name }}-deps
-          keep-count: 2
+          keep-count: ${{ github.event.inputs.prune-keep-count }}
         continue-on-error: true
 
   record-cache-result:
