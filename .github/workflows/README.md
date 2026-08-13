@@ -1,4 +1,7 @@
-# Workflow Documentation
+# Workbench Workflows Documentation
+
+These GitHub Actions workflows manage and maintain the build processes for lessons using the Carpentries Workbench on GitHub.
+
 
 ## Managing Workflow Updates
 
@@ -9,7 +12,11 @@ You can do this locally using your own R and Workbench installation, or via the 
 
 ### Updating locally
 
-In a terminal/git bash, navigate to the lesson folder where you want to update the workflows.
+In a terminal/git bash, navigate to the lesson folder where you want to update the workflows, e.g.:
+
+```bash
+cd ~/lessons/shell-novice
+```
 
 Then, start an R session and:
 
@@ -40,6 +47,21 @@ $ git push origin main
 > - Run the "02 Maintain: Check for Updated Packages" workflow and merge any PR opened to update the renv lockfile
 > - This should automatically run the "03 Maintain: Apply Package Cache" workflow to install packages and build the cache
 > - A successful cache build should then trigger the "01 Maintain: Build and Deploy Site" workflow
+
+#### Updating to a specific workflow release or branch
+
+To test new Workbench workflow features or branches, or to pin to a specific release, the `branch` option can be supplied to `update_github_workflows()`.
+
+For a given branch:
+
+```r
+sandpaper::update_github_workflows(branch="develop")
+```
+
+Or for a given release version:
+```r
+sandpaper::update_github_workflows(branch="1.0.1")
+```
 
 ### Updating using GitHub
 
@@ -73,7 +95,14 @@ If you are happy with the changes made, you can merge the PR into your lesson re
 
 ## Dependency Images for RMarkdown Lessons
 
-In summary, generating a reusable dependency layer is achieved by running the "02 Maintain: Check for Updated Packages" workflow, and then the "03 Maintain: Apply Package Cache" workflow.
+Lessons that use R packages and RMarkdown are built on GitHub using Docker images within these workflows.
+These images are based on the [workbench-docker](https://github.com/carpentries/workbench-docker) image.
+This base image only contains the Workbench packages to build lessons and not any extra R packages your lesson might need.
+
+Therefore, there are two steps to perform to resolve the required R packages in a lesson, and then generate a Docker image layer comprising those packages.
+
+The "02 Maintain: Check for Updated Packages" workflow checks for any used R packages and their versions, and if successful, opens a Pull Request to update your lesson's renv lockfile (`renv.lock`).
+Once the PR is merged, the "03 Maintain: Apply Package Cache" workflow builds the dependency image layer with `docker build` and publishes it in your user or organisation account Packages area.
 
 > [!NOTE]
 > Caching is only relevant for lessons that use Rmd files and renv to manage R packages.
@@ -83,17 +112,18 @@ In summary, generating a reusable dependency layer is achieved by running the "0
 ### Publishing dependency images
 
 The two dependency workflows are separated to ensure that once you have a successful build with a working renv environment, the resulting dependency image is stored and will be reused by the Workbench Docker container.
-This means that lesson builds will be faster once a dependency image is created and reused by the Docker container.
+This means that lesson builds will be faster and more consistent once a dependency image is created and reused. This is doubly important if you need very specific versions of R packages, i.e. "pinning".
 
-Another major bonus of this setup is that you can keep using this dependency image indefinitely to build your lesson.
-This is important if you need very specific versions of R packages ("pinning").
+This setup means that this dependency image layer is available indefinitely:
+- to build your lesson, improving robustness and reproducibility
+- for others to use as a complete environment in their local builds, teaching environments, or Codespaces
 
-If and when you want to perform an update to the dependency image, you can re-run the "02 Maintain: Check for Updated Packages" workflow and verify that your lesson still builds with the new packages.
-If all looks good, re-run the "03 Maintain: Apply Package Cache" workflow, and this will publish a new repository-local GHCR image for the lesson.
+If and when you want to perform an update to the dependency image, you can re-run the "02 Maintain: Check for Updated Packages" workflow and verify that your lesson still builds with any new packages or changes.
+The "03 Maintain: Apply Package Cache" workflow will publish a new repository- or organisation-local GHCR image for the lesson.
 
-In any case, the dependency image is invalidated by new versions of the `renv.lock` file.
+As such, the dependency image is invalidated by new versions of the `renv.lock` file.
 This happens:
-  - if you update your lockfile locally by using the `sandpaper::update_cache()` function, and then push it to the lesson repository
+  - if you update your lockfile locally by using the `sandpaper::update_cache()` and `sandpaper::manage_deps()` functions, and then push it to the lesson repository
   - when you run the "02 Maintain: Check for Updated Packages" and there are new packages to install
 
 More information on managing local renv-based lesson dependencies can be found in the [Sandpaper packages vignettes](https://carpentries.github.io/sandpaper/articles/building-with-renv.html).
@@ -103,6 +133,7 @@ More information on managing local renv-based lesson dependencies can be found i
 There are times when you may want to go back to a previous dependency image:
   - if you run "02 Maintain: Check for Updated Packages" and "03 Maintain: Apply Package Cache" and the cache generation fails for some reason
   - if there is a new R package that produces incorrect or broken lesson output
+  - a new R version is released and downstream packages fail to build and install, and need updating by the package maintainer(s)
 
 Dependency images will have the following name format, where IMAGE is the workbench-docker image version, and HASHSUM is the `renv.lock` lockfile hash:
 
@@ -116,18 +147,36 @@ Copy the hashsum part of the desired image tag you want to use, e.g. `2e499eb706
 
 Then either:
  1. Add a repository variable called CACHE_VERSION, and paste in the hash
-    - Go to ...
- 2. Run the "01 Maintain: Build and Deploy Site" manually, supplying the CACHE_VERSION input
-    - Go to ...
+ 2. Run the "01 Maintain: Build and Deploy Site" manually, supplying the `Optional renv cache version override` input
 
 If you have no images listed, make sure to run the "02 Maintain: Check for Updated Packages" and "03 Maintain: Apply Package Cache" workflows to publish a new dependency image.
 
 > [!NOTE]
-> If you are maintaining an official lesson, dependency images are saved to the repository's GHCR package namespace.
-> Once a successful dependency image has been published, the build workflows will use it automatically when the matching tag exists.
+> If you are maintaining an official lesson, dependency images are saved to the Carpentries lesson program organisation, e.g. `datacarpentry`, GHCR package namespace.
+> Once a successful dependency image has been published, the build workflows will use it automatically when the matching Docker version tag exists, e.g. 'latest' or a specific version.
 > 
-> If you are developing a lesson in your own repository, the images are still stored in that repository's GHCR package namespace.
-> You can see available images by going to the repository's Packages tab.
+> If you are developing a lesson in your own repository, the dependency images are stored in your repository's GHCR package namespace.
+> You can see available images by going to your user or organisation's Packages tab, e.g. `https://github.com/<your_github_username>?tab=packages`.
+
+#### Pruning dependency image layers
+
+Through the lifetime of a lesson, an increasing number of dependency images will be generated.
+As the images are public, GitHub currently charges no storage, or network ingress or egress fees to upload or download them.
+
+The "03 Maintain: Apply Package Cache" workflow will automatically check the number of published dependency images and keep each version published plus one underlying untagged digest (if any) for each version.
+This means it is possible to roll back easily to a previous version or digest, but not end up with a huge number of dependency images to manage.
+
+In any case, you can manually delete any versions you wish by:
+- going to your user or organisation's Packages tab, e.g. `https://github.com/<your_github_username>?tab=packages`.
+- selecting the dependency image you want to manage, e.g. `<lesson_repo_name>-deps`
+- selecting `Package settings` on the right hand side
+- deleting any images
+
+> [!NOTE]
+> Deleting these images manually may break your builds.
+> Only perform this action if you are sure you want to delete the generated dependency images.
+>
+> If you mistakenly delete an image, you can rebuild it by rerunning the "03 Maintain: Apply Package Cache" workflow.
 
 
 ## User Settings
@@ -185,7 +234,6 @@ Repository-level variables for this workflow are:
   - The workbench-docker release version to use for a given build
   - This can be set to a specific version number to force all builds to use a given container version
   - Default is unset or `latest`
-
 
 ### 04 Maintain: Update Workflow Files (update-workflows.yaml)
 

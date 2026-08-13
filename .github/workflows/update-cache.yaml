@@ -99,7 +99,7 @@ jobs:
 
       - name: "Update {renv} deps and determine if a PR is needed"
         id: update
-        uses: carpentries/actions/update-lockfile@main
+        uses: carpentries/actions/update-lockfile@v1
         with:
           update: ${{ env.UPDATE_PACKAGES }}
           force-renv-init: ${{ env.FORCE_RENV_INIT }}
@@ -108,7 +108,7 @@ jobs:
 
       - name: "Validate Current Org and Workflow"
         id: validate-org-workflow
-        uses: carpentries/actions/validate-org-workflow@main
+        uses: carpentries/actions/validate-org-workflow@v1
         with:
           repo: ${{ github.repository }}
           workflow: ${{ github.workflow }}
