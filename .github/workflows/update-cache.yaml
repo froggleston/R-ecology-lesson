@@ -67,7 +67,7 @@ jobs:
 
       - name: "Is renv required?"
         id: renv-check
-        uses: carpentries/actions/renv-checks@frog-ghcr-dep-layer-1
+        uses: carpentries/actions/renv-checks@v1
         with:
           CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
           skip-cache-check: true
