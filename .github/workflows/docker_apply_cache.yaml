@@ -58,7 +58,7 @@ jobs:
     steps:
       - name: "Check for renv"
         id: check-for-renv
-        uses: carpentries/actions/renv-checks@frog-ghcr-dep-layer-1
+        uses: carpentries/actions/renv-checks@v1
         with:
           WORKBENCH_TAG: ${{ vars.WORKBENCH_TAG || 'latest' }}
           skip-cache-check: true
@@ -92,7 +92,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -140,7 +140,7 @@ jobs:
             github.event_name == 'workflow_dispatch' &&
             github.event.inputs.force-dependency-image-rebuild == 'true'
           )
-        uses: carpentries/actions/build-dependency-image@frog-ghcr-dep-layer-1
+        uses: carpentries/actions/build-dependency-image@v1
         with:
           workbench-tag: ${{ vars.WORKBENCH_TAG || 'latest' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -156,7 +156,7 @@ jobs:
     needs: check-renv
     steps:
       - name: Prune any old dependency image layers
-        uses: carpentries/actions/prune-dependency-images@frog-ghcr-dep-layer-1
+        uses: carpentries/actions/prune-dependency-images@v1
         if: needs.check-renv.outputs.renv-needed == 'true'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
