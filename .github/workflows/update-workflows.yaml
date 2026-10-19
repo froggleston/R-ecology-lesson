@@ -93,14 +93,6 @@ jobs:
           version: ${{ github.event.inputs.version || 'latest' }}
           clean: ${{ github.event.inputs.clean || '.yaml' }}
           token: ${{ steps.set-pat.outputs.pat || secrets.SANDPAPER_WORKFLOW }}
-      
-      - name: Update devcontainer
-        id: update-devcontainer
-        if: ${{ steps.validate-token.outputs.wf == 'true' }}
-        uses: carpentries/actions/update-devcontainer@feat/update-devc-1
-        with:
-          token: ${{ steps.set-pat.outputs.pat || secrets.SANDPAPER_WORKFLOW }}
-          repo: ${{ github.repository }}
 
       - name: Create Pull Request
         id: cpr
@@ -124,6 +116,14 @@ jobs:
             [1]: https://github.com/carpentries/create-pull-request/tree/main
           labels: "type: workflows"
           draft: false
+      
+      - name: Update devcontainer
+        id: update-devcontainer
+        if: ${{ steps.validate-token.outputs.wf == 'true' }}
+        uses: carpentries/actions/update-devcontainer@feat/update-devc-1
+        with:
+          token: ${{ steps.set-pat.outputs.pat || secrets.SANDPAPER_WORKFLOW }}
+          repo: ${{ github.repository }}
 
       - name: Create Devcontainer Pull Request
         id: cdpr
