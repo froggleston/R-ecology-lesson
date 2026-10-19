@@ -22,10 +22,7 @@
     ],
     "build": {
         "dockerfile": "Dockerfile",
-        "context": "..",
-        "args": {
-          "DEVC_IMG": "${localEnv:DEVC_IMG}"
-        }
+        "context": ".."
     },
     "runArgs": [
         "-p=8787:8787",
