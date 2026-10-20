@@ -18,6 +18,11 @@ on:
         description: 'Workflow files/file extensions to clean (no wildcards, enter "" for none)'
         required: false
         default: '.yaml'
+      clean-devc:
+        description: 'Clean devcontainer files'
+        required: false
+        default: true
+        type: boolean        
 
 jobs:
   update_workflow:
@@ -124,6 +129,7 @@ jobs:
         with:
           token: ${{ steps.set-pat.outputs.pat || secrets.SANDPAPER_WORKFLOW }}
           repo: ${{ github.repository }}
+          clean: ${{ github.event.inputs.clean-devc || 'true' }}
 
       - name: Create Devcontainer Pull Request
         id: cdpr
