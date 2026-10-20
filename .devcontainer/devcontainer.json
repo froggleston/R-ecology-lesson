@@ -31,7 +31,7 @@
     "postCreateCommand": {
         "pre_echo": "echo 'Installing lesson prerequisites - please wait...'",
         "gpg_reset": "gpgconf --kill all",
-        "load_site_libs": "Rscript -e 'sandpaper::manage_deps(use_site_libs = TRUE)'",
+        "handle_renv": "Rscript /home/rstudio/.workbench/fortify_renv_cache.R",
         "startRstudio": "bash /home/rstudio/start.sh"
     },
     "containerEnv": {
