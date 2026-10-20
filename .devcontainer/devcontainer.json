@@ -22,7 +22,10 @@
     ],
     "build": {
         "dockerfile": "Dockerfile",
-        "context": ".."
+        "context": "..",
+        "args": {
+          "DEVC_IMG": "${localEnv:DEVC_IMG}"
+        }
     },
     "runArgs": [
         "-p=8787:8787",
@@ -31,7 +34,6 @@
     "postCreateCommand": {
         "pre_echo": "echo 'Installing lesson prerequisites - please wait...'",
         "gpg_reset": "gpgconf --kill all",
-        "load_site_libs": "Rscript -e 'sandpaper::manage_deps(use_site_libs = TRUE)'",
         "startRstudio": "bash /home/rstudio/start.sh"
     },
     "containerEnv": {
