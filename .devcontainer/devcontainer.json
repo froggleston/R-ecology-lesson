@@ -31,11 +31,15 @@
     "postCreateCommand": {
         "pre_echo": "echo 'Installing lesson prerequisites - please wait...'",
         "gpg_reset": "gpgconf --kill all",
-        "handle_renv": "Rscript /home/rstudio/.workbench/fortify_renv_cache.R",
-        "startRstudio": "bash /home/rstudio/start.sh"
+        "renv_rstudio_setup": "Rscript /home/rstudio/.workbench/fortify_renv_cache.R && bash /home/rstudio/start.sh"
     },
     "containerEnv": {
         "DISABLE_AUTH": "true",
-        "GPG_TTY": "/dev/pts/0"
+        "GPG_TTY": "/dev/pts/0",
+        "USER": "rstudio",
+        "PASSWORD": "rstudio",
+        "RENV_PATHS_ROOT": "/home/rstudio/.local/share/renv",
+        "RENV_PROFILE": "lesson-requirements",
+        "RENV_CONFIG_EXTERNAL_LIBRARIES": "/usr/local/lib/R/site-library"
     }
 }

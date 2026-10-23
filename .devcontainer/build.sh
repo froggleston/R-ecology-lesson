@@ -7,11 +7,14 @@ ORG=$(dirname ${GRO} | awk -F':' '{ print $2 }')
 REPO=$(basename -s .git ${GRO})
 DEPS_IMG="ghcr.io/${ORG}/${REPO,,}-deps:latest"
 
-echo "Using: ${DEPS_IMG}"
-
-if docker pull "$DEPS_IMG"; then
+if [[ ! -d "renv" ]]; then
+  echo "No renv directory found, using minimal image..."
+  DEPS_IMG="ghcr.io/carpentries/workbench-docker:latest-minimal"
+  sed -i "s|^FROM .*|FROM $DEPS_IMG|" .devcontainer/Dockerfile
+elif docker pull "$DEPS_IMG"; then
+  echo "Using: ${DEPS_IMG}"
   # update the Dockerfile FROM
-  sed -i "s|^FROM .*|FROM $DEPS_IMG|" Dockerfile
+  sed -i "s|^FROM .*|FROM $DEPS_IMG|" .devcontainer/Dockerfile
 fi
 
 devcontainer up
